@@ -10,4 +10,12 @@ func getSharedCacheUUIDLiveInvoke() {
     _ = result
 }
 
+
+@Test
+func sharedCacheIsOptimizedLiveInvoke() {
+    let result = DyldPriv.sharedCacheIsOptimized()
+    // Accept either true or false; just must not crash.
+    _ = result
+}
+
 #endif

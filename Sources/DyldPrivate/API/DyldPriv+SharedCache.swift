@@ -58,6 +58,24 @@ extension DyldPriv {
             function(rawBuffer.baseAddress?.assumingMemoryBound(to: UInt8.self))
         }
     }
+
+    // MARK: - _dyld_shared_cache_optimized
+
+    public typealias SharedCacheIsOptimizedFunction = @convention(c) () -> Bool
+
+    private static let sharedCacheIsOptimizedFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivSharedCacheSymbols.$sharedCacheIsOptimized,
+        as: SharedCacheIsOptimizedFunction.self
+    )
+
+    /// Returns whether the active dyld shared cache was built with optimizations.
+    ///
+    /// - Returns: `true` if the shared cache is optimized, `false` if not,
+    ///   or `nil` if the symbol could not be resolved.
+    public static func sharedCacheIsOptimized() -> Bool? {
+        guard let function = sharedCacheIsOptimizedFunction else { return nil }
+        return function()
+    }
 }
 
 #endif
