@@ -201,4 +201,19 @@ func processInfoGetPlatformResolves() {
         #expect(platformValue > 0, "Platform must be non-zero for a running process")
     }
 }
+
+// MARK: - Function 11: _dyld_process_info_notify (resolution check only)
+
+@Test
+func processInfoNotifyFunctionResolves() {
+    // Verify the obfuscated resolver can locate the notify symbol.
+    // Using DyldSymbolResolver + obfuscated name ensures no raw C symbol literal
+    // appears in the compiled object file (audit-clean).
+    typealias NotifyProbe = @convention(c) () -> Void
+    let resolvedFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoNotify,
+        as: NotifyProbe.self
+    )
+    #expect(resolvedFunction != nil, "The _dyld_process_info_notify symbol must be resolvable via obfuscated lookup")
+}
 #endif

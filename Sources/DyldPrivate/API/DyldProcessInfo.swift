@@ -337,4 +337,76 @@ extension DyldProcessInfo {
         return function(handle.rawValue)
     }
 }
+
+// MARK: - Function 11: _dyld_process_info_notify
+
+extension DyldProcessInfo {
+    // Use UnsafeRawPointer for the uuid parameter because uuid_t (a tuple) is not
+    // representable in Objective-C and cannot appear directly in @convention(block).
+    public typealias ProcessInfoNotifyFunction = @convention(c) (
+        task_t,
+        UnsafeRawPointer?,  // dispatch_queue_t — passed as opaque pointer
+        @convention(block) (Bool, UInt64, UInt64, UnsafeRawPointer?, UnsafePointer<CChar>?) -> Void,
+        @convention(block) () -> Void,
+        UnsafeMutablePointer<kern_return_t>?
+    ) -> UnsafeRawPointer?
+
+    private static let processInfoNotifyFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoNotify,
+        as: ProcessInfoNotifyFunction.self
+    )
+
+    /// Requests notifications when the image list changes in the target process.
+    ///
+    /// - Parameters:
+    ///   - task: The Mach task port of the target process.
+    ///   - queue: The dispatch queue on which to call the notify block (passed as opaque pointer).
+    ///   - notify: Called each time an image is loaded or unloaded.
+    ///   - notifyExit: Called when the target process exits.
+    /// - Returns: A `.success` with a `DyldProcessInfoNotifyHandle`, or `.failure` with a `DyldError`.
+    public static func notify(
+        task: task_t,
+        queue: UnsafeRawPointer,
+        notify notifyBlock: @escaping (
+            _ unload: Bool,
+            _ timestamp: UInt64,
+            _ machHeader: UInt64,
+            _ uuid: uuid_t,
+            _ path: String
+        ) -> Void,
+        notifyExit notifyExitBlock: @escaping () -> Void
+    ) -> Result<DyldProcessInfoNotifyHandle, DyldError> {
+        // Use the obfuscated symbol string as the error description so that the
+        // raw C symbol name never appears as a literal in the compiled object file.
+        let symbolName = ObfuscatedDyldProcessInfoSymbols.$processInfoNotify
+        guard let function = processInfoNotifyFunction else {
+            return .failure(.symbolUnavailable(symbolName))
+        }
+        let notifyBlockBridge: @convention(block) (Bool, UInt64, UInt64, UnsafeRawPointer?, UnsafePointer<CChar>?) -> Void = {
+            unload, timestamp, machHeader, uuidRawPointer, pathPointer in
+            let uuidValue: uuid_t
+            if let uuidRawPointer {
+                uuidValue = uuidRawPointer.load(as: uuid_t.self)
+            } else {
+                uuidValue = uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            }
+            let pathString = pathPointer.map { String(cString: $0) } ?? ""
+            notifyBlock(unload, timestamp, machHeader, uuidValue, pathString)
+        }
+        let notifyExitBlockBridge: @convention(block) () -> Void = {
+            notifyExitBlock()
+        }
+        var machError: kern_return_t = KERN_SUCCESS
+        let rawHandle = withUnsafeMutablePointer(to: &machError) { pointerToError in
+            function(task, queue, notifyBlockBridge, notifyExitBlockBridge, pointerToError)
+        }
+        if machError != KERN_SUCCESS {
+            return .failure(.mach(machError))
+        }
+        guard let rawHandle else {
+            return .failure(.symbolUnavailable(symbolName))
+        }
+        return .success(.init(rawValue: rawHandle))
+    }
+}
 #endif
