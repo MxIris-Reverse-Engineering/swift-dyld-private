@@ -39,4 +39,16 @@ func getBasePlatformResolves() {
         #expect(basePlatformValue > 0)
     }
 }
+
+@Test
+func isSimulatorPlatformResolves() {
+    // Live-invoke: pass active platform. On a native arm64 Mac process this should be false.
+    // Either true or false is a valid result; we only require the function resolves.
+    guard let activePlatform = DyldPriv.getActivePlatform() else {
+        Issue.record("could not obtain active platform for testing")
+        return
+    }
+    let isSimulatorResult = DyldPriv.isSimulatorPlatform(activePlatform)
+    #expect(isSimulatorResult != nil)
+}
 #endif
