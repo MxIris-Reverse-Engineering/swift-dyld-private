@@ -194,4 +194,46 @@ extension DyldProcessInfo {
         return aotCacheInfo
     }
 }
+
+// MARK: - Function 7: _dyld_process_info_for_each_image
+
+extension DyldProcessInfo {
+    // Use UnsafeRawPointer for the uuid parameter because uuid_t (a tuple) is not
+    // representable in Objective-C and cannot appear directly in @convention(block).
+    public typealias ProcessInfoForEachImageFunction = @convention(c) (
+        UnsafeRawPointer?,
+        @convention(block) (UInt64, UnsafeRawPointer?, UnsafePointer<CChar>?) -> Void
+    ) -> Void
+
+    private static let processInfoForEachImageFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoForEachImage,
+        as: ProcessInfoForEachImageFunction.self
+    )
+
+    /// Iterates all images loaded in the process represented by the given handle.
+    ///
+    /// - Parameters:
+    ///   - handle: A valid `DyldProcessInfoHandle`.
+    ///   - body: Called for each image with its mach header address, UUID, and file path.
+    public static func forEachImage(
+        in handle: DyldProcessInfoHandle,
+        _ body: @escaping (_ machHeaderAddress: UInt64, _ uuid: uuid_t, _ path: String) -> Void
+    ) {
+        guard let function = processInfoForEachImageFunction else {
+            return
+        }
+        let block: @convention(block) (UInt64, UnsafeRawPointer?, UnsafePointer<CChar>?) -> Void = {
+            machHeaderAddress, uuidRawPointer, pathPointer in
+            let uuidValue: uuid_t
+            if let uuidRawPointer {
+                uuidValue = uuidRawPointer.load(as: uuid_t.self)
+            } else {
+                uuidValue = uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            }
+            let pathString = pathPointer.map { String(cString: $0) } ?? ""
+            body(machHeaderAddress, uuidValue, pathString)
+        }
+        function(handle.rawValue, block)
+    }
+}
 #endif

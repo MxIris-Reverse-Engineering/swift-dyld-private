@@ -112,4 +112,22 @@ func processInfoGetAotCacheResolves() {
     let aotCacheInfo = DyldProcessInfo.aotCacheInfo(of: handle)
     #expect(aotCacheInfo != nil, "processInfoGetAotCache must resolve (may return zeroed struct on non-AOT processes)")
 }
+
+// MARK: - Function 7: _dyld_process_info_for_each_image
+
+@Test
+func processInfoForEachImageResolves() {
+    guard let handle = makeCurrentProcessHandle() else {
+        Issue.record("Could not create processInfo handle for forEachImage test")
+        return
+    }
+    defer { handle.release() }
+    var imageCount = 0
+    DyldProcessInfo.forEachImage(in: handle) { machHeaderAddress, _, path in
+        imageCount += 1
+        // Each image must have a non-zero mach header address.
+        #expect(machHeaderAddress != 0, "Mach header address must be non-zero for image: \(path)")
+    }
+    #expect(imageCount > 0, "forEachImage must enumerate at least one image in the current process")
+}
 #endif
