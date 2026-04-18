@@ -79,6 +79,14 @@ enum ForbiddenSymbolList {
         "_dyld_has_fix_for_radar",
         // dyld_priv.h — runtime launch
         "_dyld_launch_mode",
+        // dyld_priv.h — image info
+        "_dyld_lookup_section_info",
+        "_dyld_get_image_slide",
+        "_dyld_find_unwind_sections",
+        "_dyld_get_prog_image_header",
+        "_dyld_get_dlopen_image_header",
+        "_dyld_get_image_uuid",
+        "_dyld_images_for_addresses",
         // dyld_priv.h — program version
         "dyld_program_sdk_at_least",
         "dyld_program_minos_at_least",

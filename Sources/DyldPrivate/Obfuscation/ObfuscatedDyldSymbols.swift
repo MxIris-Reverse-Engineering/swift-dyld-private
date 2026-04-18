@@ -88,6 +88,18 @@ enum ObfuscatedDyldPrivRuntimeSymbols {
     }
 }
 
+enum ObfuscatedDyldPrivImageSymbols {
+    static #Obfuscate {
+        let lookupSectionInfo = "_dyld_lookup_section_info"
+        let getImageSlide = "_dyld_get_image_slide"
+        let findUnwindSections = "_dyld_find_unwind_sections"
+        let getProgImageHeader = "_dyld_get_prog_image_header"
+        let getDlopenImageHeader = "_dyld_get_dlopen_image_header"
+        let getImageUUID = "_dyld_get_image_uuid"
+        let imagesForAddresses = "_dyld_images_for_addresses"
+    }
+}
+
 enum ObfuscatedDyldPrivVersionSymbols {
     static #Obfuscate {
         let programSdkAtLeast = "dyld_program_sdk_at_least"
