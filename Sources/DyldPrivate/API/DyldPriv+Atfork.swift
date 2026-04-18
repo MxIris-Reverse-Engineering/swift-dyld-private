@@ -6,6 +6,7 @@ extension DyldPriv {
     public typealias AtforkParentFunction = @convention(c) () -> Void
     public typealias ForkChildFunction = @convention(c) () -> Void
     public typealias DlopenAtforkPrepareFunction = @convention(c) () -> Void
+    public typealias DlopenAtforkParentFunction = @convention(c) () -> Void
 
     private static let atforkPrepareFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivAtforkSymbols.$atforkPrepare,
@@ -25,6 +26,11 @@ extension DyldPriv {
     private static let dlopenAtforkPrepareFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivAtforkSymbols.$dlopenAtforkPrepare,
         as: DlopenAtforkPrepareFunction.self
+    )
+
+    private static let dlopenAtforkParentFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivAtforkSymbols.$dlopenAtforkParent,
+        as: DlopenAtforkParentFunction.self
     )
 
     /// Calls the dyld internal atfork-prepare handler.
@@ -64,6 +70,16 @@ extension DyldPriv {
     /// See `atforkPrepare()` for general safety notes.
     public static func dlopenAtforkPrepare() {
         guard let function = dlopenAtforkPrepareFunction else { return }
+        function()
+    }
+
+    /// Calls the dyld internal dlopen atfork-parent handler.
+    ///
+    /// WARNING: This function releases dyld's dlopen lock in the parent after `fork()`.
+    /// It must only be called from a `pthread_atfork` parent handler.
+    /// See `atforkPrepare()` for general safety notes.
+    public static func dlopenAtforkParent() {
+        guard let function = dlopenAtforkParentFunction else { return }
         function()
     }
 }
