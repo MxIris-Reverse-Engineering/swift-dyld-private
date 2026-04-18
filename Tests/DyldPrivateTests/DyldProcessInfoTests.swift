@@ -62,4 +62,21 @@ func processInfoRetainResolves() {
     handle.release()
     #expect(true, "processInfoRetain resolved and completed without crash")
 }
+
+// MARK: - Function 4: _dyld_process_info_get_state
+
+@Test
+func processInfoGetStateResolves() {
+    guard let handle = makeCurrentProcessHandle() else {
+        Issue.record("Could not create processInfo handle for state test")
+        return
+    }
+    defer { handle.release() }
+    let stateInfo = DyldProcessInfo.state(of: handle)
+    #expect(stateInfo != nil, "processInfoGetState must resolve")
+    if let stateInfo {
+        // The current process must be in a running state.
+        #expect(stateInfo.imageCount > 0, "Running process must have at least one loaded image")
+    }
+}
 #endif

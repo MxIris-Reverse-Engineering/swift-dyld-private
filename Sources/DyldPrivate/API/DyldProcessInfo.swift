@@ -116,4 +116,30 @@ extension DyldProcessInfoHandle {
         DyldProcessInfo.processInfoRetainFunction?(rawValue)
     }
 }
+
+// MARK: - Function 4: _dyld_process_info_get_state
+
+extension DyldProcessInfo {
+    public typealias ProcessInfoGetStateFunction = @convention(c) (
+        UnsafeRawPointer?,
+        UnsafeMutablePointer<dyld_process_state_info>?
+    ) -> Void
+
+    private static let processInfoGetStateFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoGetState,
+        as: ProcessInfoGetStateFunction.self
+    )
+
+    /// Returns process state information for the given handle.
+    /// - Parameter handle: A valid `DyldProcessInfoHandle`.
+    /// - Returns: A `dyld_process_state_info` struct, or nil if the symbol could not be resolved.
+    public static func state(of handle: DyldProcessInfoHandle) -> dyld_process_state_info? {
+        guard let function = processInfoGetStateFunction else {
+            return nil
+        }
+        var stateInfo = dyld_process_state_info()
+        function(handle.rawValue, &stateInfo)
+        return stateInfo
+    }
+}
 #endif
