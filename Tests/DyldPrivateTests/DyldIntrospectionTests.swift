@@ -98,4 +98,26 @@ func processSnapshotDisposeResolves() {
     snapshotHandle.dispose()
     #expect(Bool(true), "processSnapshotDispose did not crash")
 }
+
+// MARK: - Function 7: dyld_process_snapshot_for_each_image
+
+@Test
+func processSnapshotForEachImageResolves() {
+    guard let processHandle = DyldIntrospection.createProcessForCurrentTask() else {
+        Issue.record("Could not create process handle for forEachImage test")
+        return
+    }
+    defer { processHandle.dispose() }
+    guard case .success(let snapshotHandle) = DyldIntrospection.createSnapshot(forProcess: processHandle) else {
+        Issue.record("Could not create snapshot handle for forEachImage test")
+        return
+    }
+    defer { snapshotHandle.dispose() }
+
+    var imageCount = 0
+    DyldIntrospection.forEachImage(in: snapshotHandle) { _ in
+        imageCount += 1
+    }
+    #expect(imageCount > 0, "forEachImage must yield at least one image for the current process")
+}
 #endif

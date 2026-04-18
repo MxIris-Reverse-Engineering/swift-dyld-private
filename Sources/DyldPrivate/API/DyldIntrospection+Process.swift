@@ -203,4 +203,38 @@ extension DyldProcessSnapshotHandle {
         DyldIntrospection.processSnapshotDisposeFunction?(rawValue)
     }
 }
+
+// MARK: - Function 7: dyld_process_snapshot_for_each_image
+
+extension DyldIntrospection {
+    public typealias ProcessSnapshotForEachImageFunction = @convention(c) (
+        OpaquePointer?,
+        @convention(block) (OpaquePointer?) -> Void
+    ) -> Void
+
+    private static let processSnapshotForEachImageFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$processSnapshotForEachImage,
+        as: ProcessSnapshotForEachImageFunction.self
+    )
+
+    /// Iterates over all images currently loaded in the snapshot (excludes shared cache images
+    /// not loaded into the process).
+    ///
+    /// - Parameters:
+    ///   - snapshot: A valid `DyldProcessSnapshotHandle`.
+    ///   - body: Called for each loaded image with a `DyldImageHandle`.
+    public static func forEachImage(
+        in snapshot: DyldProcessSnapshotHandle,
+        _ body: @escaping (_ image: DyldImageHandle) -> Void
+    ) {
+        guard let function = processSnapshotForEachImageFunction else {
+            return
+        }
+        let block: @convention(block) (OpaquePointer?) -> Void = { imagePointer in
+            guard let imagePointer else { return }
+            body(DyldImageHandle(rawValue: imagePointer))
+        }
+        function(snapshot.rawValue, block)
+    }
+}
 #endif
