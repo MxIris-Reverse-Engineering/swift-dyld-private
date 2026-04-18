@@ -33,4 +33,27 @@ func installNameResolvesForSelf() {
     #expect(installName != nil)
     #expect(installName?.isEmpty == false)
 }
+
+@Test
+func forEachDependentDylibResolvesAndInvokes() {
+    guard let header = knownImageHeader() else {
+        Issue.record("could not obtain a mach_header for testing")
+        return
+    }
+    var foundAtLeastOne = false
+    let returnCode = MachOUtils.forEachDependentDylib(
+        of: header,
+        mappedSize: 0
+    ) { loadPath, _, _ in
+        if !loadPath.isEmpty {
+            foundAtLeastOne = true
+        }
+    }
+    // A non-negative return code means the function resolved and ran.
+    #expect(returnCode >= 0 || returnCode == -1)
+    // If it resolved (not our sentinel -1), we expect at least one dependency.
+    if returnCode != -1 {
+        #expect(foundAtLeastOne)
+    }
+}
 #endif
