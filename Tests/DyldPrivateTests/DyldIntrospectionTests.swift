@@ -16,15 +16,15 @@ func processCreateForCurrentTaskResolves() {
 // MARK: - Function 2: dyld_process_create_for_task
 
 @Test
-func processCreateForTaskResolves() {
+func processCreateForTaskResolvesAndDisposes() {
     // Use mach_task_self_ as the target task (the current task) to verify resolution.
     let result = DyldIntrospection.createProcess(forTask: mach_task_self_)
-    switch result {
-    case .success:
-        #expect(Bool(true), "createProcess(forTask:) resolved and returned a valid handle")
-    case .failure(let error):
-        Issue.record("createProcess(forTask:) failed: \(error)")
+    guard case .success(let handle) = result else {
+        Issue.record("expected success, got \(result)")
+        return
     }
+    defer { handle.dispose() }
+    #expect(handle.rawValue != OpaquePointer(bitPattern: 0))
 }
 
 // MARK: - Function 3: dyld_process_dispose
@@ -347,7 +347,7 @@ func sharedCacheIsMappedPrivateResolves() {
     var capturedIsMappedPrivate: Bool?
     DyldIntrospection.forEachInstalledSharedCache { cacheHandle in
         if capturedIsMappedPrivate == nil {
-            capturedIsMappedPrivate = DyldIntrospection.isMappedPrivate(cacheHandle)
+            capturedIsMappedPrivate = DyldIntrospection.isMappedPrivate(of: cacheHandle)
         }
     }
     #expect(capturedIsMappedPrivate != nil, "isMappedPrivate must return a non-nil value for an installed shared cache")

@@ -252,7 +252,7 @@ extension DyldIntrospection {
     /// - Parameter cache: A valid `DyldSharedCacheHandle`.
     /// - Returns: `true` if the cache uses a private mapping, `false` if it uses a shared system
     ///   mapping, or nil if the symbol could not be resolved.
-    public static func isMappedPrivate(_ cache: DyldSharedCacheHandle) -> Bool? {
+    public static func isMappedPrivate(of cache: DyldSharedCacheHandle) -> Bool? {
         guard let function = sharedCacheIsMappedPrivateFunction else {
             return nil
         }

@@ -89,7 +89,7 @@ extension DyldIntrospection {
             return .failure(.mach(machError))
         }
         guard let rawPointer else {
-            return .failure(.symbolUnavailable(ObfuscatedDyldIntrospectionSymbols.$processCreateForTask))
+            return .failure(.operationFailed(ObfuscatedDyldIntrospectionSymbols.$processCreateForTask))
         }
         return .success(DyldProcessHandle(rawValue: rawPointer))
     }

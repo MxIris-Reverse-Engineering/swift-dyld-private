@@ -24,7 +24,11 @@ extension DyldIntrospection {
     ///
     /// - Parameters:
     ///   - process: A valid `DyldProcessHandle`.
-    ///   - queue: The dispatch queue on which to invoke the notification block.
+    ///   - queue: The dispatch queue on which notifications will be delivered.
+    ///     **Lifetime:** The caller must keep `queue` alive until `unregisterForNotification(...)`
+    ///     is called. The underlying dyld API holds a non-retaining reference to the queue
+    ///     for the full registration lifetime; releasing the queue earlier leads to undefined
+    ///     behavior.
     ///   - notify: Called for each load or unload event. `loaded` is `true` on load, `false` on
     ///     unload. The `DyldImageHandle` is valid only for the lifetime of the block.
     /// - Returns: `.success` with a non-zero registration handle, or `.failure` with a `DyldError`.
@@ -49,7 +53,7 @@ extension DyldIntrospection {
             return .failure(.mach(machError))
         }
         if registrationHandle == 0 {
-            return .failure(.symbolUnavailable(ObfuscatedDyldIntrospectionSymbols.$processRegisterForImageNotifications))
+            return .failure(.operationFailed(ObfuscatedDyldIntrospectionSymbols.$processRegisterForImageNotifications))
         }
         return .success(registrationHandle)
     }
@@ -80,7 +84,11 @@ extension DyldIntrospection {
     /// - Parameters:
     ///   - process: A valid `DyldProcessHandle`.
     ///   - event: The event type to listen for.
-    ///   - queue: The dispatch queue on which to invoke the notification block.
+    ///   - queue: The dispatch queue on which notifications will be delivered.
+    ///     **Lifetime:** The caller must keep `queue` alive until `unregisterForNotification(...)`
+    ///     is called. The underlying dyld API holds a non-retaining reference to the queue
+    ///     for the full registration lifetime; releasing the queue earlier leads to undefined
+    ///     behavior.
     ///   - notify: Called when the event fires.
     /// - Returns: `.success` with a non-zero registration handle, or `.failure` with a `DyldError`.
     public static func registerForEventNotification(
@@ -102,7 +110,7 @@ extension DyldIntrospection {
             return .failure(.mach(machError))
         }
         if registrationHandle == 0 {
-            return .failure(.symbolUnavailable(ObfuscatedDyldIntrospectionSymbols.$processRegisterForEventNotification))
+            return .failure(.operationFailed(ObfuscatedDyldIntrospectionSymbols.$processRegisterForEventNotification))
         }
         return .success(registrationHandle)
     }
