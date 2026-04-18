@@ -45,4 +45,38 @@ extension DyldIntrospection {
         function(block)
     }
 }
+
+// MARK: - Function 13: dyld_for_each_installed_shared_cache_with_system_path
+
+extension DyldIntrospection {
+    public typealias ForEachInstalledSharedCacheWithSystemPathFunction = @convention(c) (
+        UnsafePointer<CChar>?,
+        @convention(block) (OpaquePointer?) -> Void
+    ) -> Void
+
+    private static let forEachInstalledSharedCacheWithSystemPathFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$forEachInstalledSharedCacheWithSystemPath,
+        as: ForEachInstalledSharedCacheWithSystemPathFunction.self
+    )
+
+    /// Iterates over each shared cache installed at the given root path.
+    ///
+    /// - Parameters:
+    ///   - rootPath: The root path of the system installation (e.g. "/").
+    ///   - body: Called for each installed shared cache with a `DyldSharedCacheHandle`.
+    ///     The handle is valid only for the lifetime of the block.
+    public static func forEachInstalledSharedCache(
+        withSystemPath rootPath: String,
+        _ body: @escaping (_ cache: DyldSharedCacheHandle) -> Void
+    ) {
+        guard let function = forEachInstalledSharedCacheWithSystemPathFunction else {
+            return
+        }
+        let block: @convention(block) (OpaquePointer?) -> Void = { cachePointer in
+            guard let cachePointer else { return }
+            body(DyldSharedCacheHandle(rawValue: cachePointer))
+        }
+        rootPath.withCString { function($0, block) }
+    }
+}
 #endif

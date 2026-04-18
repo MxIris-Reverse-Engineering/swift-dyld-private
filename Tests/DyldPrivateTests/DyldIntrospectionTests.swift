@@ -229,4 +229,15 @@ func forEachInstalledSharedCacheResolves() {
     }
     #expect(cacheCount > 0, "forEachInstalledSharedCache must enumerate at least one shared cache on macOS")
 }
+
+// MARK: - Function 13: dyld_for_each_installed_shared_cache_with_system_path
+
+@Test
+func forEachInstalledSharedCacheWithSystemPathResolves() {
+    var cacheCount = 0
+    DyldIntrospection.forEachInstalledSharedCache(withSystemPath: "/") { _ in
+        cacheCount += 1
+    }
+    #expect(cacheCount > 0, "forEachInstalledSharedCache(withSystemPath:) must enumerate at least one cache at /")
+}
 #endif
