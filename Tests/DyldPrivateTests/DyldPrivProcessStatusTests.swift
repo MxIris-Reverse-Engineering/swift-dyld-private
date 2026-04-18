@@ -15,4 +15,11 @@ func processIsRestrictedResolves() {
     let result = DyldPriv.processIsRestricted()
     #expect(result != nil)
 }
+
+@Test
+func hasInsertedOrInterposingLibrariesResolves() {
+    // Live-invoke: returns Bool, no side effects.
+    let result = DyldPriv.hasInsertedOrInterposingLibraries()
+    #expect(result != nil)
+}
 #endif

@@ -4,6 +4,7 @@ import Darwin
 extension DyldPriv {
     public typealias SharedCacheSomeImageOverriddenFunction = @convention(c) () -> Bool
     public typealias ProcessIsRestrictedFunction = @convention(c) () -> Bool
+    public typealias HasInsertedOrInterposingLibrariesFunction = @convention(c) () -> Bool
 
     private static let sharedCacheSomeImageOverriddenFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivProcessStatusSymbols.$sharedCacheSomeImageOverridden,
@@ -13,6 +14,11 @@ extension DyldPriv {
     private static let processIsRestrictedFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivProcessStatusSymbols.$processIsRestricted,
         as: ProcessIsRestrictedFunction.self
+    )
+
+    private static let hasInsertedOrInterposingLibrariesFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivProcessStatusSymbols.$hasInsertedOrInterposingLibraries,
+        as: HasInsertedOrInterposingLibrariesFunction.self
     )
 
     /// Returns whether any image in the dyld shared cache has been overridden
@@ -26,6 +32,13 @@ extension DyldPriv {
     /// (e.g. setuid, entitlements that disable library injection).
     public static func processIsRestricted() -> Bool? {
         guard let function = processIsRestrictedFunction else { return nil }
+        return function()
+    }
+
+    /// Returns whether any libraries were injected via `DYLD_INSERT_LIBRARIES`
+    /// or interposing is active in the current process.
+    public static func hasInsertedOrInterposingLibraries() -> Bool? {
+        guard let function = hasInsertedOrInterposingLibrariesFunction else { return nil }
         return function()
     }
 }
