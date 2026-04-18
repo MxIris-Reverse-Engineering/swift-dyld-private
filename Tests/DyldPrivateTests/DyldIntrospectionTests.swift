@@ -218,4 +218,15 @@ func processUnregisterForNotificationResolves() {
     DyldIntrospection.unregisterForNotification(on: processHandle, registrationHandle: registrationHandle)
     #expect(Bool(true), "unregisterForNotification did not crash")
 }
+
+// MARK: - Function 12: dyld_for_each_installed_shared_cache
+
+@Test
+func forEachInstalledSharedCacheResolves() {
+    var cacheCount = 0
+    DyldIntrospection.forEachInstalledSharedCache { _ in
+        cacheCount += 1
+    }
+    #expect(cacheCount > 0, "forEachInstalledSharedCache must enumerate at least one shared cache on macOS")
+}
 #endif

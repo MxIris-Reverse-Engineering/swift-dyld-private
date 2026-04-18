@@ -14,4 +14,35 @@ public struct DyldSharedCacheHandle: @unchecked Sendable {
         self.rawValue = rawValue
     }
 }
+
+// MARK: - Function 12: dyld_for_each_installed_shared_cache
+
+extension DyldIntrospection {
+    public typealias ForEachInstalledSharedCacheFunction = @convention(c) (
+        @convention(block) (OpaquePointer?) -> Void
+    ) -> Void
+
+    private static let forEachInstalledSharedCacheFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$forEachInstalledSharedCache,
+        as: ForEachInstalledSharedCacheFunction.self
+    )
+
+    /// Iterates over each shared cache provided by the operating system (equivalent to calling
+    /// forEachInstalledSharedCache(withSystemPath: "/", …)).
+    ///
+    /// - Parameter body: Called for each installed shared cache with a `DyldSharedCacheHandle`.
+    ///   The handle is valid only for the lifetime of the block.
+    public static func forEachInstalledSharedCache(
+        _ body: @escaping (_ cache: DyldSharedCacheHandle) -> Void
+    ) {
+        guard let function = forEachInstalledSharedCacheFunction else {
+            return
+        }
+        let block: @convention(block) (OpaquePointer?) -> Void = { cachePointer in
+            guard let cachePointer else { return }
+            body(DyldSharedCacheHandle(rawValue: cachePointer))
+        }
+        function(block)
+    }
+}
 #endif
