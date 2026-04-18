@@ -123,6 +123,13 @@ enum ObfuscatedDyldPrivVersionWatchOSSymbols {
 }
 #endif
 
+enum ObfuscatedDyldPrivObjCNotifySymbols {
+    static #Obfuscate {
+        let objcNotifyRegister = "_dyld_objc_notify_register"
+        let objcRegisterCallbacks = "_dyld_objc_register_callbacks"
+    }
+}
+
 enum ObfuscatedDyldPrivRegistrationSymbols {
     static #Obfuscate {
         let registerForImageLoads = "_dyld_register_for_image_loads"

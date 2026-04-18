@@ -99,6 +99,9 @@ enum ForbiddenSymbolList {
         "dyld_get_program_sdk_version",
         "dyld_get_program_sdk_watch_os_version",
         "dyld_get_program_min_watch_os_version",
+        // dyld_priv.h — ObjC notify
+        "_dyld_objc_notify_register",
+        "_dyld_objc_register_callbacks",
         // dyld_priv.h — registration
         "_dyld_register_for_image_loads",
         "_dyld_register_for_bulk_image_loads",
