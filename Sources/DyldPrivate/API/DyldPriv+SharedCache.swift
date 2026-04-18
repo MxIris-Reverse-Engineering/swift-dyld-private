@@ -76,6 +76,24 @@ extension DyldPriv {
         guard let function = sharedCacheIsOptimizedFunction else { return nil }
         return function()
     }
+
+    // MARK: - _dyld_shared_cache_is_locally_built
+
+    public typealias SharedCacheIsLocallyBuiltFunction = @convention(c) () -> Bool
+
+    private static let sharedCacheIsLocallyBuiltFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivSharedCacheSymbols.$sharedCacheIsLocallyBuilt,
+        as: SharedCacheIsLocallyBuiltFunction.self
+    )
+
+    /// Returns whether the currently active dyld shared cache was built locally.
+    ///
+    /// - Returns: `true` if the shared cache was built on this machine, `false` if it
+    ///   was installed (from Apple), or `nil` if the symbol could not be resolved.
+    public static func sharedCacheIsLocallyBuilt() -> Bool? {
+        guard let function = sharedCacheIsLocallyBuiltFunction else { return nil }
+        return function()
+    }
 }
 
 #endif
