@@ -1,10 +1,8 @@
 // swift-tools-version: 6.2
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
 import PackageDescription
 
 let package = Package(
-    name: "DyldPrivate",
+    name: "swift-dyld-private",
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
@@ -19,8 +17,8 @@ let package = Package(
             targets: ["DyldPrivate"]
         ),
         .library(
-            name: "DyldPrivateRuntime",
-            targets: ["DyldPrivateRuntime"]
+            name: "DyldPrivateC",
+            targets: ["DyldPrivateC"]
         ),
     ],
     dependencies: [
@@ -28,21 +26,22 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "DyldPrivate"
+            name: "DyldPrivateC"
         ),
         .target(
-            name: "DyldPrivateRuntime",
+            name: "DyldPrivate",
             dependencies: [
+                "DyldPrivateC",
                 .product(name: "ConfidentialKit", package: "swift-confidential"),
             ]
         ),
         .testTarget(
-            name: "DyldPrivateTests",
-            dependencies: ["DyldPrivate"]
+            name: "DyldPrivateCTests",
+            dependencies: ["DyldPrivateC"]
         ),
         .testTarget(
-            name: "DyldPrivateRuntimeTests",
-            dependencies: ["DyldPrivateRuntime"]
+            name: "DyldPrivateTests",
+            dependencies: ["DyldPrivate"]
         ),
     ]
 )
