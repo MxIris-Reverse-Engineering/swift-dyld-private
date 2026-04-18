@@ -79,4 +79,40 @@ extension DyldIntrospection {
         rootPath.withCString { function($0, block) }
     }
 }
+
+// MARK: - Function 14: dyld_shared_cache_for_file
+
+extension DyldIntrospection {
+    public typealias SharedCacheForFileFunction = @convention(c) (
+        UnsafePointer<CChar>?,
+        @convention(block) (OpaquePointer?) -> Void
+    ) -> Bool
+
+    private static let sharedCacheForFileFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$sharedCacheForFile,
+        as: SharedCacheForFileFunction.self
+    )
+
+    /// Maps in the shared cache at the given file path and invokes the block with it.
+    ///
+    /// - Parameters:
+    ///   - filePath: The file system path to the shared cache file.
+    ///   - body: Called with a `DyldSharedCacheHandle` if the cache was successfully mapped.
+    /// - Returns: `true` if the cache was successfully mapped and the block was called,
+    ///   `false` otherwise (including if the symbol could not be resolved).
+    @discardableResult
+    public static func sharedCache(
+        forFile filePath: String,
+        _ body: @escaping (_ cache: DyldSharedCacheHandle) -> Void
+    ) -> Bool {
+        guard let function = sharedCacheForFileFunction else {
+            return false
+        }
+        let block: @convention(block) (OpaquePointer?) -> Void = { cachePointer in
+            guard let cachePointer else { return }
+            body(DyldSharedCacheHandle(rawValue: cachePointer))
+        }
+        return filePath.withCString { function($0, block) }
+    }
+}
 #endif
