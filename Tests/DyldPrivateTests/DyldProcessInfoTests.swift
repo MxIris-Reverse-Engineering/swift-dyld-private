@@ -98,4 +98,18 @@ func processInfoGetCacheResolves() {
         }
     }
 }
+
+// MARK: - Function 6: _dyld_process_info_get_aot_cache
+
+@Test
+func processInfoGetAotCacheResolves() {
+    guard let handle = makeCurrentProcessHandle() else {
+        Issue.record("Could not create processInfo handle for aot cache test")
+        return
+    }
+    defer { handle.release() }
+    // On non-AOT processes, this returns a zeroed struct. We only verify no crash occurs.
+    let aotCacheInfo = DyldProcessInfo.aotCacheInfo(of: handle)
+    #expect(aotCacheInfo != nil, "processInfoGetAotCache must resolve (may return zeroed struct on non-AOT processes)")
+}
 #endif

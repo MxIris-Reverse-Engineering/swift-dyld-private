@@ -168,4 +168,30 @@ extension DyldProcessInfo {
         return cacheInfo
     }
 }
+
+// MARK: - Function 6: _dyld_process_info_get_aot_cache
+
+extension DyldProcessInfo {
+    public typealias ProcessInfoGetAotCacheFunction = @convention(c) (
+        UnsafeRawPointer?,
+        UnsafeMutablePointer<dyld_process_aot_cache_info>?
+    ) -> Void
+
+    private static let processInfoGetAotCacheFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoGetAotCache,
+        as: ProcessInfoGetAotCacheFunction.self
+    )
+
+    /// Returns AOT cache information for the given handle.
+    /// - Parameter handle: A valid `DyldProcessInfoHandle`.
+    /// - Returns: A `dyld_process_aot_cache_info` struct, or nil if the symbol could not be resolved.
+    public static func aotCacheInfo(of handle: DyldProcessInfoHandle) -> dyld_process_aot_cache_info? {
+        guard let function = processInfoGetAotCacheFunction else {
+            return nil
+        }
+        var aotCacheInfo = dyld_process_aot_cache_info()
+        function(handle.rawValue, &aotCacheInfo)
+        return aotCacheInfo
+    }
+}
 #endif
