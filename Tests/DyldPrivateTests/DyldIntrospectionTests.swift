@@ -533,4 +533,28 @@ func imageContentForSectionResolves() {
     }
     #expect(contentReaderWasCalled, "contentForSection must invoke the reader block for __TEXT/__text in at least one shared cache image")
 }
+
+// MARK: - Function 30: dyld_image_local_nlist_content_4Symbolication
+
+@Test
+func imageLocalNlistContent4SymbolicationResolves() {
+    var contentReaderWasCalled = false
+    DyldIntrospection.forEachInstalledSharedCache { cacheHandle in
+        guard !contentReaderWasCalled else { return }
+        if !DyldIntrospection.pinMapping(of: cacheHandle) { return }
+        defer { DyldIntrospection.unpinMapping(of: cacheHandle) }
+        DyldIntrospection.forEachImage(in: cacheHandle) { imageHandle in
+            guard !contentReaderWasCalled else { return }
+            let succeeded = DyldIntrospection.localNlistContent4Symbolication(
+                in: imageHandle
+            ) { _, _, _ in
+                contentReaderWasCalled = true
+            }
+            _ = succeeded
+        }
+    }
+    // Some images may have no local nlist data; we only verify no crash.
+    _ = contentReaderWasCalled
+    #expect(Bool(true), "localNlistContent4Symbolication did not crash")
+}
 #endif

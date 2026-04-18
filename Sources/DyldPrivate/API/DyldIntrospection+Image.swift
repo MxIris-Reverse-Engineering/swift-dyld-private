@@ -281,4 +281,46 @@ extension DyldIntrospection {
         }
     }
 }
+
+// MARK: - Function 30: dyld_image_local_nlist_content_4Symbolication
+
+extension DyldIntrospection {
+    public typealias ImageLocalNlistContent4SymbolicationFunction = @convention(c) (
+        OpaquePointer?,
+        @convention(block) (UnsafeRawPointer?, UInt64, UnsafePointer<CChar>?) -> Void
+    ) -> Bool
+
+    private static let imageLocalNlistContent4SymbolicationFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$imageLocalNlistContent4Symbolication,
+        as: ImageLocalNlistContent4SymbolicationFunction.self
+    )
+
+    /// Provides the local nlist symbol table content for symbolication purposes.
+    ///
+    /// - Parameters:
+    ///   - image: A valid `DyldImageHandle`.
+    ///   - contentReader: Called with a pointer to the start of the nlist entries, the count of
+    ///     nlist entries, and a pointer to the string table. All pointers are valid only for
+    ///     the lifetime of the block unless the cache is pinned.
+    /// - Returns: `true` if the content was provided, `false` otherwise.
+    @discardableResult
+    public static func localNlistContent4Symbolication(
+        in image: DyldImageHandle,
+        _ contentReader: @escaping (
+            _ nlistStart: UnsafeRawPointer,
+            _ nlistCount: UInt64,
+            _ stringTable: UnsafePointer<CChar>
+        ) -> Void
+    ) -> Bool {
+        guard let function = imageLocalNlistContent4SymbolicationFunction else {
+            return false
+        }
+        let block: @convention(block) (UnsafeRawPointer?, UInt64, UnsafePointer<CChar>?) -> Void = {
+            nlistStartPointer, nlistCount, stringTablePointer in
+            guard let nlistStartPointer, let stringTablePointer else { return }
+            contentReader(nlistStartPointer, nlistCount, stringTablePointer)
+        }
+        return function(image.rawValue, block)
+    }
+}
 #endif
