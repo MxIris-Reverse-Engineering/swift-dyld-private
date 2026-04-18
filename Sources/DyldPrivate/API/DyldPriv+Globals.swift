@@ -59,10 +59,7 @@ extension DyldPriv {
         ) else {
             return nil
         }
-        guard let charPointer = doublePointer.pointee else {
-            return nil
-        }
-        return String(cString: charPointer)
+        return String(cString: doublePointer.pointee)
     }
 }
 #endif
