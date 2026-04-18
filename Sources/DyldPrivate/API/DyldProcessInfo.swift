@@ -79,4 +79,23 @@ extension DyldProcessInfo {
         return .success(.init(rawValue: rawHandle))
     }
 }
+
+// MARK: - Function 2: _dyld_process_info_release
+
+extension DyldProcessInfo {
+    public typealias ProcessInfoReleaseFunction = @convention(c) (UnsafeRawPointer?) -> Void
+
+    fileprivate static let processInfoReleaseFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoRelease,
+        as: ProcessInfoReleaseFunction.self
+    )
+}
+
+extension DyldProcessInfoHandle {
+    /// Releases this dyld_process_info handle.
+    /// After calling this, the handle must not be used again.
+    public func release() {
+        DyldProcessInfo.processInfoReleaseFunction?(rawValue)
+    }
+}
 #endif

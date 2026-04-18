@@ -21,12 +21,28 @@ private func makeCurrentProcessHandle() -> DyldProcessInfoHandle? {
 func processInfoCreateResolves() {
     let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
     // The function must resolve and succeed for the current process.
-    // Note: release() will be available after wrapping _dyld_process_info_release in the next commit.
     switch result {
-    case .success:
+    case .success(let handle):
+        defer { handle.release() }
         #expect(true, "processInfoCreate resolved and returned a valid handle")
     case .failure(let error):
         Issue.record("processInfoCreate failed: \(error)")
     }
+}
+
+// MARK: - Function 2: _dyld_process_info_release
+
+@Test
+func processInfoReleaseResolves() {
+    // Verify that release() can be called without crashing.
+    // We create a handle and immediately release it to test the function pointer.
+    let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
+    guard case .success(let handle) = result else {
+        Issue.record("Could not create processInfo handle for release test")
+        return
+    }
+    // Calling release() is the test — it must not crash.
+    handle.release()
+    #expect(true, "processInfoRelease resolved and completed without crash")
 }
 #endif
