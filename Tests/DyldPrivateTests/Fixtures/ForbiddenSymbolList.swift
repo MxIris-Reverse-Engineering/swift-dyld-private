@@ -99,6 +99,8 @@ enum ForbiddenSymbolList {
         "dyld_get_program_sdk_version",
         "dyld_get_program_sdk_watch_os_version",
         "dyld_get_program_min_watch_os_version",
+        // dyld_priv.h — interpose
+        "dyld_dynamic_interpose",
         // dyld_priv.h — min OS version
         "dyld_get_min_os_version",
         "dyld_get_program_min_os_version",

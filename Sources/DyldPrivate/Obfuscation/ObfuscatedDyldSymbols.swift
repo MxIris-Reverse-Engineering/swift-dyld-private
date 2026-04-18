@@ -123,6 +123,12 @@ enum ObfuscatedDyldPrivVersionWatchOSSymbols {
 }
 #endif
 
+enum ObfuscatedDyldPrivInterposeSymbols {
+    static #Obfuscate {
+        let dynamicInterpose = "dyld_dynamic_interpose"
+    }
+}
+
 enum ObfuscatedDyldPrivMinOSVersionSymbols {
     static #Obfuscate {
         let getMinOSVersion = "dyld_get_min_os_version"
