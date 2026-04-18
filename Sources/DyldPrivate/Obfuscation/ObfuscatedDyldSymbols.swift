@@ -46,9 +46,9 @@ enum ObfuscatedDyldPrivGlobalsSymbols {
     static #Obfuscate {
         let nxArgc = "NXArgc"
         let nxArgv = "NXArgv"
-        let environ = "environ"
+        let processEnvironment = "environ"
         let progname = "__progname"
-        let dyldVersionString = "dyldVersionString"
+        let dyldBuildVersionString = "dyldVersionString"
     }
 }
 

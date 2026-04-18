@@ -33,13 +33,13 @@ extension DyldPriv {
 
     /// Returns the process environment variable array (`envp`).
     ///
-    /// `environ` is the POSIX libc `char**` variable holding the environment array.
-    /// `dlsym` returns the address of the `char**` variable (i.e. `char***`);
-    /// this property dereferences once to expose the `char**` environ pointer.
+    /// Loads the POSIX `environ` libc global (`char**` variable holding the environment array)
+    /// via `dlsym`. `dlsym` returns the address of the `char**` variable (i.e. `char***`);
+    /// this property dereferences once to expose the `char**` pointer.
     /// The array is null-terminated; each entry is a `"KEY=VALUE"` C string.
-    public static var environ: UnsafePointer<UnsafeMutablePointer<CChar>?>? {
+    public static var processEnv: UnsafePointer<UnsafeMutablePointer<CChar>?>? {
         guard let triplePointer = DyldSymbolResolver.resolveData(
-            symbol: ObfuscatedDyldPrivGlobalsSymbols.$environ,
+            symbol: ObfuscatedDyldPrivGlobalsSymbols.$processEnvironment,
             as: UnsafeMutablePointer<CChar>?.self
         ) else {
             return nil
@@ -62,15 +62,15 @@ extension DyldPriv {
         return String(cString: doublePointer.pointee)
     }
 
-    /// Returns the dyld version string for the current dyld build.
+    /// Returns the dyld build version string for the current dyld installation.
     ///
-    /// `dyldVersionString` is exported by dyld as a `const char*` symbol whose
-    /// address IS the first byte of the version string (i.e. `dlsym` returns a `char*`
+    /// The underlying symbol is `dyldVersionString`, exported by dyld as a `const char*`
+    /// whose address IS the first byte of the version data (i.e. `dlsym` returns a `char*`
     /// directly, not a `char**`). This property reads the bytes at that address.
     /// Example value: `"@(#)PROGRAM:dyld  PROJECT:dyld-1376.6"`.
-    public static var dyldVersionString: String? {
+    public static var dyldBuildInfo: String? {
         guard let charPointer = DyldSymbolResolver.resolveData(
-            symbol: ObfuscatedDyldPrivGlobalsSymbols.$dyldVersionString,
+            symbol: ObfuscatedDyldPrivGlobalsSymbols.$dyldBuildVersionString,
             as: CChar.self
         ) else {
             return nil

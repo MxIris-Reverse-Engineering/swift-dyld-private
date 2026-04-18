@@ -24,11 +24,11 @@ func nxArgvResolves() {
 }
 
 @Test
-func environResolves() {
+func processEnvResolves() {
     // Live-invoke: environ is a POSIX global; it should be non-nil and
     // the array should be null-terminated (first entry may be non-nil or nil depending
     // on whether any env vars are set, but the pointer itself must not be nil).
-    let environmentVector = DyldPriv.environ
+    let environmentVector = DyldPriv.processEnv
     #expect(environmentVector != nil)
 }
 
@@ -44,13 +44,13 @@ func prognameResolves() {
 }
 
 @Test
-func dyldVersionStringResolves() {
+func dyldBuildInfoResolves() {
     // Live-invoke: dyldVersionString is exported by libdyld. It should be non-nil
     // and non-empty on any Apple Darwin platform.
-    let versionString = DyldPriv.dyldVersionString
-    #expect(versionString != nil)
-    if let versionString {
-        #expect(!versionString.isEmpty)
+    let buildInfoString = DyldPriv.dyldBuildInfo
+    #expect(buildInfoString != nil)
+    if let buildInfoString {
+        #expect(!buildInfoString.isEmpty)
     }
 }
 #endif
