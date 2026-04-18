@@ -59,4 +59,39 @@ extension DyldIntrospection {
         return DyldProcessHandle(rawValue: rawPointer)
     }
 }
+
+// MARK: - Function 2: dyld_process_create_for_task
+
+extension DyldIntrospection {
+    public typealias ProcessCreateForTaskFunction = @convention(c) (
+        mach_port_t,
+        UnsafeMutablePointer<kern_return_t>?
+    ) -> OpaquePointer?
+
+    private static let processCreateForTaskFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$processCreateForTask,
+        as: ProcessCreateForTaskFunction.self
+    )
+
+    /// Creates a dyld_process_t for the given Mach task.
+    ///
+    /// - Parameter task: The task_read_t port of the target process.
+    /// - Returns: `.success` with a `DyldProcessHandle`, or `.failure` with a `DyldError`.
+    public static func createProcess(
+        forTask task: mach_port_t
+    ) -> Result<DyldProcessHandle, DyldError> {
+        guard let function = processCreateForTaskFunction else {
+            return .failure(.symbolUnavailable(ObfuscatedDyldIntrospectionSymbols.$processCreateForTask))
+        }
+        var machError: kern_return_t = KERN_SUCCESS
+        let rawPointer = withUnsafeMutablePointer(to: &machError) { function(task, $0) }
+        if machError != KERN_SUCCESS {
+            return .failure(.mach(machError))
+        }
+        guard let rawPointer else {
+            return .failure(.symbolUnavailable(ObfuscatedDyldIntrospectionSymbols.$processCreateForTask))
+        }
+        return .success(DyldProcessHandle(rawValue: rawPointer))
+    }
+}
 #endif
