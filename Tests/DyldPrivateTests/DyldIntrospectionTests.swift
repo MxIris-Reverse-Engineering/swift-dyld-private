@@ -120,4 +120,23 @@ func processSnapshotForEachImageResolves() {
     }
     #expect(imageCount > 0, "forEachImage must yield at least one image for the current process")
 }
+
+// MARK: - Function 8: dyld_process_snapshot_get_shared_cache
+
+@Test
+func processSnapshotGetSharedCacheResolves() {
+    guard let processHandle = DyldIntrospection.createProcessForCurrentTask() else {
+        Issue.record("Could not create process handle for getSharedCache test")
+        return
+    }
+    defer { processHandle.dispose() }
+    guard case .success(let snapshotHandle) = DyldIntrospection.createSnapshot(forProcess: processHandle) else {
+        Issue.record("Could not create snapshot handle for getSharedCache test")
+        return
+    }
+    defer { snapshotHandle.dispose() }
+
+    let cacheHandle = DyldIntrospection.getSharedCache(of: snapshotHandle)
+    #expect(cacheHandle != nil, "getSharedCache must return a non-nil handle for the current process snapshot")
+}
 #endif

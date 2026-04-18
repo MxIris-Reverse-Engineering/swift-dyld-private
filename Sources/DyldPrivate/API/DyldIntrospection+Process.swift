@@ -237,4 +237,34 @@ extension DyldIntrospection {
         function(snapshot.rawValue, block)
     }
 }
+
+// MARK: - Function 8: dyld_process_snapshot_get_shared_cache
+
+extension DyldIntrospection {
+    public typealias ProcessSnapshotGetSharedCacheFunction = @convention(c) (
+        OpaquePointer?
+    ) -> OpaquePointer?
+
+    private static let processSnapshotGetSharedCacheFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$processSnapshotGetSharedCache,
+        as: ProcessSnapshotGetSharedCacheFunction.self
+    )
+
+    /// Returns the shared cache object associated with the given snapshot.
+    ///
+    /// - Parameter snapshot: A valid `DyldProcessSnapshotHandle`.
+    /// - Returns: A `DyldSharedCacheHandle` for the snapshot's shared cache, or nil if the symbol
+    ///   could not be resolved or the snapshot has no associated shared cache.
+    public static func getSharedCache(
+        of snapshot: DyldProcessSnapshotHandle
+    ) -> DyldSharedCacheHandle? {
+        guard let function = processSnapshotGetSharedCacheFunction else {
+            return nil
+        }
+        guard let rawPointer = function(snapshot.rawValue) else {
+            return nil
+        }
+        return DyldSharedCacheHandle(rawValue: rawPointer)
+    }
+}
 #endif
