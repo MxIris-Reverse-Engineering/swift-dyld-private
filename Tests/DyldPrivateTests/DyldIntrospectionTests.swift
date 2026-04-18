@@ -10,8 +10,7 @@ import Testing
 func processCreateForCurrentTaskResolves() {
     let processHandle = DyldIntrospection.createProcessForCurrentTask()
     #expect(processHandle != nil, "createProcessForCurrentTask must resolve and return a valid handle")
-    // Note: dispose() will be added to DyldProcessHandle in the dyld_process_dispose commit.
-    // The process object is intentionally not disposed here; the test process cleans up on exit.
+    processHandle?.dispose()
 }
 
 // MARK: - Function 2: dyld_process_create_for_task
@@ -26,5 +25,19 @@ func processCreateForTaskResolves() {
     case .failure(let error):
         Issue.record("createProcess(forTask:) failed: \(error)")
     }
+}
+
+// MARK: - Function 3: dyld_process_dispose
+
+@Test
+func processDisposeResolves() {
+    // Create a handle and call dispose() — the test is that dispose() does not crash.
+    guard let processHandle = DyldIntrospection.createProcessForCurrentTask() else {
+        Issue.record("Could not create process handle for dispose test")
+        return
+    }
+    // This is the function under test — it must not crash.
+    processHandle.dispose()
+    #expect(Bool(true), "processDispose did not crash")
 }
 #endif

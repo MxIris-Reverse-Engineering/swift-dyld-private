@@ -94,4 +94,23 @@ extension DyldIntrospection {
         return .success(DyldProcessHandle(rawValue: rawPointer))
     }
 }
+
+// MARK: - Function 3: dyld_process_dispose
+
+extension DyldIntrospection {
+    public typealias ProcessDisposeFunction = @convention(c) (OpaquePointer?) -> Void
+
+    fileprivate static let processDisposeFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$processDispose,
+        as: ProcessDisposeFunction.self
+    )
+}
+
+extension DyldProcessHandle {
+    /// Disposes of this dyld_process_t, releasing all resources it holds.
+    /// After calling this, the handle must not be used again.
+    public func dispose() {
+        DyldIntrospection.processDisposeFunction?(rawValue)
+    }
+}
 #endif
