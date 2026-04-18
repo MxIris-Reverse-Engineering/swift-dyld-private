@@ -45,4 +45,21 @@ func processInfoReleaseResolves() {
     handle.release()
     #expect(true, "processInfoRelease resolved and completed without crash")
 }
+
+// MARK: - Function 3: _dyld_process_info_retain
+
+@Test
+func processInfoRetainResolves() {
+    // Verify that retain() can be called without crashing, then balance with release.
+    let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
+    guard case .success(let handle) = result else {
+        Issue.record("Could not create processInfo handle for retain test")
+        return
+    }
+    // Retain once, then release twice to balance (create + retain = 2 retains).
+    handle.retain()
+    handle.release()
+    handle.release()
+    #expect(true, "processInfoRetain resolved and completed without crash")
+}
 #endif

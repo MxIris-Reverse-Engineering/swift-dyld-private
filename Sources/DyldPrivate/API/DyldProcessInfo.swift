@@ -98,4 +98,22 @@ extension DyldProcessInfoHandle {
         DyldProcessInfo.processInfoReleaseFunction?(rawValue)
     }
 }
+
+// MARK: - Function 3: _dyld_process_info_retain
+
+extension DyldProcessInfo {
+    public typealias ProcessInfoRetainFunction = @convention(c) (UnsafeRawPointer?) -> Void
+
+    fileprivate static let processInfoRetainFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoRetain,
+        as: ProcessInfoRetainFunction.self
+    )
+}
+
+extension DyldProcessInfoHandle {
+    /// Retains this dyld_process_info handle, incrementing its reference count.
+    public func retain() {
+        DyldProcessInfo.processInfoRetainFunction?(rawValue)
+    }
+}
 #endif
