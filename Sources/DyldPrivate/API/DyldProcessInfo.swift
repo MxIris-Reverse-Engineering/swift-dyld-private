@@ -52,19 +52,22 @@ extension DyldProcessInfo {
     ///
     /// - Parameters:
     ///   - task: The Mach task port of the target process.
-    ///   - timestamp: Pass 0 to always gather full info. Pass a prior timestamp to skip
-    ///                if the image list has not changed since then (returns nil on success).
-    /// - Returns: A `.success` containing a `DyldProcessInfoHandle`, or `.failure` with a
-    ///            `DyldError` if the symbol could not be resolved or the Mach call failed.
+    ///   - timestamp: Pass 0 to always gather full info. Pass a prior timestamp to check
+    ///                whether the image list has changed since then. If it has not changed,
+    ///                the function returns `.success(nil)` — a successful no-op per the header:
+    ///                "If it has not changed, the function returns NULL and kern_return_t is KERN_SUCCESS."
+    /// - Returns: A `.success` containing a `DyldProcessInfoHandle` (non-nil when full info was
+    ///            gathered), `.success(nil)` when timestamp was non-zero and the image list is
+    ///            unchanged, or `.failure` with a `DyldError` if the symbol could not be resolved
+    ///            or the Mach call failed.
     public static func create(
         task: task_t,
         timestamp: UInt64
-    ) -> Result<DyldProcessInfoHandle, DyldError> {
+    ) -> Result<DyldProcessInfoHandle?, DyldError> {
         // Use the obfuscated symbol string as the error description so that the
         // raw C symbol name never appears as a literal in the compiled object file.
-        let symbolName = ObfuscatedDyldProcessInfoSymbols.$processInfoCreate
         guard let function = processInfoCreateFunction else {
-            return .failure(.symbolUnavailable(symbolName))
+            return .failure(.symbolUnavailable(ObfuscatedDyldProcessInfoSymbols.$processInfoCreate))
         }
         var machError: kern_return_t = KERN_SUCCESS
         let rawHandle = withUnsafeMutablePointer(to: &machError) { pointerToError in
@@ -74,7 +77,8 @@ extension DyldProcessInfo {
             return .failure(.mach(machError))
         }
         guard let rawHandle else {
-            return .failure(.symbolUnavailable(symbolName))
+            // Per dyld_process_info.h: NULL + KERN_SUCCESS means "image list unchanged since timestamp"
+            return .success(nil)
         }
         return .success(.init(rawValue: rawHandle))
     }

@@ -6,10 +6,11 @@ import Testing
 // MARK: - Helpers
 
 /// Creates a DyldProcessInfoHandle for the current process and returns it.
-/// The caller is responsible for calling handle.release() via a defer block.
+/// Passing timestamp=0 always produces a full snapshot, so the optional inside .success is
+/// guaranteed to be non-nil. The caller is responsible for calling handle.release() via a defer block.
 private func makeCurrentProcessHandle() -> DyldProcessInfoHandle? {
     let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
-    guard case .success(let handle) = result else {
+    guard case .success(let optionalHandle) = result, let handle = optionalHandle else {
         return nil
     }
     return handle
@@ -21,10 +22,15 @@ private func makeCurrentProcessHandle() -> DyldProcessInfoHandle? {
 func processInfoCreateResolves() {
     let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
     // The function must resolve and succeed for the current process.
+    // timestamp=0 always performs a full gather, so the returned handle must be non-nil.
     switch result {
-    case .success(let handle):
+    case .success(let optionalHandle):
+        guard let handle = optionalHandle else {
+            Issue.record("processInfoCreate returned nil handle with timestamp=0 (unexpected no-change result)")
+            return
+        }
         defer { handle.release() }
-        #expect(true, "processInfoCreate resolved and returned a valid handle")
+        #expect(handle.rawValue != nil, "processInfoCreate resolved and returned a valid handle")
     case .failure(let error):
         Issue.record("processInfoCreate failed: \(error)")
     }
@@ -37,7 +43,7 @@ func processInfoReleaseResolves() {
     // Verify that release() can be called without crashing.
     // We create a handle and immediately release it to test the function pointer.
     let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
-    guard case .success(let handle) = result else {
+    guard case .success(let optionalHandle) = result, let handle = optionalHandle else {
         Issue.record("Could not create processInfo handle for release test")
         return
     }
@@ -52,7 +58,7 @@ func processInfoReleaseResolves() {
 func processInfoRetainResolves() {
     // Verify that retain() can be called without crashing, then balance with release.
     let result = DyldProcessInfo.create(task: mach_task_self_, timestamp: 0)
-    guard case .success(let handle) = result else {
+    guard case .success(let optionalHandle) = result, let handle = optionalHandle else {
         Issue.record("Could not create processInfo handle for retain test")
         return
     }
@@ -148,8 +154,8 @@ func processInfoForEachAotImageResolves() {
         invocationCount += 1
         return true
     }
-    // Zero invocations is valid for non-AOT processes.
-    #expect(invocationCount >= 0, "forEachAotImage resolved; zero invocations acceptable for non-AOT processes")
+    // Zero invocations is valid for non-AOT processes; sanity-check the upper bound.
+    #expect(invocationCount < 10_000, "forEachAotImage invocation count should be a sane value")
 }
 #endif
 
