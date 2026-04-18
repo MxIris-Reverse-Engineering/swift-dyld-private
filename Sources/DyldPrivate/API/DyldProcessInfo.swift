@@ -236,4 +236,46 @@ extension DyldProcessInfo {
         function(handle.rawValue, block)
     }
 }
+
+// MARK: - Function 8: _dyld_process_info_for_each_aot_image (macOS only)
+
+#if os(macOS)
+extension DyldProcessInfo {
+    public typealias ProcessInfoForEachAotImageFunction = @convention(c) (
+        UnsafeRawPointer?,
+        @convention(block) (UInt64, UInt64, UInt64, UnsafeMutablePointer<UInt8>?, Int) -> Bool
+    ) -> Void
+
+    private static let processInfoForEachAotImageFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoForEachAotImage,
+        as: ProcessInfoForEachAotImageFunction.self
+    )
+
+    /// Iterates all AOT (Ahead-Of-Time) images in the process represented by the given handle.
+    /// This API is only available on macOS. On non-AOT processes, the callback may never fire.
+    ///
+    /// - Parameters:
+    ///   - handle: A valid `DyldProcessInfoHandle`.
+    ///   - body: Called for each AOT image. Return `false` to stop iteration early.
+    public static func forEachAotImage(
+        in handle: DyldProcessInfoHandle,
+        _ body: @escaping (
+            _ x86Address: UInt64,
+            _ aotAddress: UInt64,
+            _ aotSize: UInt64,
+            _ aotImageKey: UnsafeMutablePointer<UInt8>?,
+            _ aotImageKeySize: Int
+        ) -> Bool
+    ) {
+        guard let function = processInfoForEachAotImageFunction else {
+            return
+        }
+        let block: @convention(block) (UInt64, UInt64, UInt64, UnsafeMutablePointer<UInt8>?, Int) -> Bool = {
+            x86Address, aotAddress, aotSize, aotImageKey, aotImageKeySize in
+            body(x86Address, aotAddress, aotSize, aotImageKey, aotImageKeySize)
+        }
+        function(handle.rawValue, block)
+    }
+}
+#endif
 #endif

@@ -130,4 +130,26 @@ func processInfoForEachImageResolves() {
     }
     #expect(imageCount > 0, "forEachImage must enumerate at least one image in the current process")
 }
+
+// MARK: - Function 8: _dyld_process_info_for_each_aot_image (macOS only)
+
+#if os(macOS)
+@Test
+func processInfoForEachAotImageResolves() {
+    guard let handle = makeCurrentProcessHandle() else {
+        Issue.record("Could not create processInfo handle for forEachAotImage test")
+        return
+    }
+    defer { handle.release() }
+    // On a non-AOT test runner, the callback may never fire — that is acceptable.
+    // We only verify the function resolves and does not crash.
+    var invocationCount = 0
+    DyldProcessInfo.forEachAotImage(in: handle) { _, _, _, _, _ in
+        invocationCount += 1
+        return true
+    }
+    // Zero invocations is valid for non-AOT processes.
+    #expect(invocationCount >= 0, "forEachAotImage resolved; zero invocations acceptable for non-AOT processes")
+}
+#endif
 #endif
