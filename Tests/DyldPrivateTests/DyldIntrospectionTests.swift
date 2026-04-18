@@ -452,4 +452,21 @@ func imageGetFilePathResolves() {
     }
     #expect(foundFilePath, "imageGetFilePath must return a non-empty file path for at least one process image")
 }
+
+// MARK: - Function 26: dyld_image_for_each_segment_info
+
+@Test
+func imageForEachSegmentInfoResolves() {
+    var segmentCount = 0
+    DyldIntrospection.forEachInstalledSharedCache { cacheHandle in
+        guard segmentCount == 0 else { return }
+        DyldIntrospection.forEachImage(in: cacheHandle) { imageHandle in
+            guard segmentCount == 0 else { return }
+            DyldIntrospection.forEachSegmentInfo(in: imageHandle) { _, _, _, _ in
+                segmentCount += 1
+            }
+        }
+    }
+    #expect(segmentCount > 0, "forEachSegmentInfo must yield at least one segment for a shared cache image")
+}
 #endif

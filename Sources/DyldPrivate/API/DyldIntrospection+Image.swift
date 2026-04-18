@@ -100,4 +100,46 @@ extension DyldIntrospection {
         return String(cString: cString)
     }
 }
+
+// MARK: - Function 26: dyld_image_for_each_segment_info
+
+extension DyldIntrospection {
+    public typealias ImageForEachSegmentInfoFunction = @convention(c) (
+        OpaquePointer?,
+        @convention(block) (UnsafePointer<CChar>?, UInt64, UInt64, Int32) -> Void
+    ) -> Bool
+
+    private static let imageForEachSegmentInfoFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$imageForEachSegmentInfo,
+        as: ImageForEachSegmentInfoFunction.self
+    )
+
+    /// Iterates over all segments in the image.
+    ///
+    /// - Parameters:
+    ///   - image: A valid `DyldImageHandle`.
+    ///   - body: Called for each segment with its name, VM address, VM size, and permissions.
+    /// - Returns: `true` if iteration succeeded, `false` if the underlying data was unavailable
+    ///   or the symbol could not be resolved.
+    @discardableResult
+    public static func forEachSegmentInfo(
+        in image: DyldImageHandle,
+        _ body: @escaping (
+            _ segmentName: String,
+            _ vmAddress: UInt64,
+            _ vmSize: UInt64,
+            _ permissions: Int32
+        ) -> Void
+    ) -> Bool {
+        guard let function = imageForEachSegmentInfoFunction else {
+            return false
+        }
+        let block: @convention(block) (UnsafePointer<CChar>?, UInt64, UInt64, Int32) -> Void = {
+            namePointer, vmAddress, vmSize, permissions in
+            let segmentName = namePointer.map { String(cString: $0) } ?? ""
+            body(segmentName, vmAddress, vmSize, permissions)
+        }
+        return function(image.rawValue, block)
+    }
+}
 #endif
