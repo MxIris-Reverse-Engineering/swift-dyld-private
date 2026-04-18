@@ -276,10 +276,24 @@ func sharedCachePinMappingResolves() {
         let pinResult = DyldIntrospection.pinMapping(of: cacheHandle)
         if pinResult {
             pinnedSuccessfully = true
-            // unpinMapping will be called in the dyld_shared_cache_unpin_mapping commit.
-            // Pinned mappings are released when the test process exits.
+            DyldIntrospection.unpinMapping(of: cacheHandle)
         }
     }
     #expect(pinnedSuccessfully, "pinMapping must succeed for at least one installed shared cache")
+}
+
+// MARK: - Function 16: dyld_shared_cache_unpin_mapping
+
+@Test
+func sharedCacheUnpinMappingResolves() {
+    // Pin and then unpin a cache — test is that unpinMapping does not crash.
+    var unpinCalled = false
+    DyldIntrospection.forEachInstalledSharedCache { cacheHandle in
+        let pinResult = DyldIntrospection.pinMapping(of: cacheHandle)
+        guard pinResult else { return }
+        DyldIntrospection.unpinMapping(of: cacheHandle)
+        unpinCalled = true
+    }
+    #expect(unpinCalled, "unpinMapping must be callable after a successful pinMapping")
 }
 #endif

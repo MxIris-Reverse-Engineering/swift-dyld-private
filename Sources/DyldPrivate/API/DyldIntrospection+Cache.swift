@@ -140,4 +140,23 @@ extension DyldIntrospection {
         return function(cache.rawValue)
     }
 }
+
+// MARK: - Function 16: dyld_shared_cache_unpin_mapping
+
+extension DyldIntrospection {
+    public typealias SharedCacheUnpinMappingFunction = @convention(c) (OpaquePointer?) -> Void
+
+    private static let sharedCacheUnpinMappingFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$sharedCacheUnpinMapping,
+        as: SharedCacheUnpinMappingFunction.self
+    )
+
+    /// Unmaps a previously pinned shared cache from memory.
+    /// All pointers to content within the pinned cache become invalid after this call.
+    ///
+    /// - Parameter cache: A valid `DyldSharedCacheHandle` that was previously pinned.
+    public static func unpinMapping(of cache: DyldSharedCacheHandle) {
+        sharedCacheUnpinMappingFunction?(cache.rawValue)
+    }
+}
 #endif
