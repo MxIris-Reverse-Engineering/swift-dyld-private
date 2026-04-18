@@ -469,4 +469,27 @@ func imageForEachSegmentInfoResolves() {
     }
     #expect(segmentCount > 0, "forEachSegmentInfo must yield at least one segment for a shared cache image")
 }
+
+// MARK: - Function 27: dyld_image_content_for_segment
+
+@Test
+func imageContentForSegmentResolves() {
+    var contentReaderWasCalled = false
+    DyldIntrospection.forEachInstalledSharedCache { cacheHandle in
+        guard !contentReaderWasCalled else { return }
+        if !DyldIntrospection.pinMapping(of: cacheHandle) { return }
+        defer { DyldIntrospection.unpinMapping(of: cacheHandle) }
+        DyldIntrospection.forEachImage(in: cacheHandle) { imageHandle in
+            guard !contentReaderWasCalled else { return }
+            let succeeded = DyldIntrospection.contentForSegment(
+                in: imageHandle,
+                segmentName: "__TEXT"
+            ) { _, _, _ in
+                contentReaderWasCalled = true
+            }
+            _ = succeeded
+        }
+    }
+    #expect(contentReaderWasCalled, "contentForSegment must invoke the reader block for __TEXT in at least one shared cache image")
+}
 #endif

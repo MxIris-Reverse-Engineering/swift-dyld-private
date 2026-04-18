@@ -142,4 +142,48 @@ extension DyldIntrospection {
         return function(image.rawValue, block)
     }
 }
+
+// MARK: - Function 27: dyld_image_content_for_segment
+
+extension DyldIntrospection {
+    public typealias ImageContentForSegmentFunction = @convention(c) (
+        OpaquePointer?,
+        UnsafePointer<CChar>?,
+        @convention(block) (UnsafeRawPointer?, UInt64, UInt64) -> Void
+    ) -> Bool
+
+    private static let imageContentForSegmentFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$imageContentForSegment,
+        as: ImageContentForSegmentFunction.self
+    )
+
+    /// Materializes the on-disk content for a named segment and passes it to the reader block.
+    ///
+    /// - Parameters:
+    ///   - image: A valid `DyldImageHandle`.
+    ///   - segmentName: The name of the segment (e.g. "__TEXT").
+    ///   - contentReader: Called with a pointer to the content, its VM address, and its VM size.
+    ///     The pointer is valid only for the lifetime of the block unless the cache is pinned.
+    /// - Returns: `true` if the content was materialized, `false` otherwise.
+    @discardableResult
+    public static func contentForSegment(
+        in image: DyldImageHandle,
+        segmentName: String,
+        _ contentReader: @escaping (
+            _ content: UnsafeRawPointer,
+            _ vmAddress: UInt64,
+            _ vmSize: UInt64
+        ) -> Void
+    ) -> Bool {
+        guard let function = imageContentForSegmentFunction else {
+            return false
+        }
+        let block: @convention(block) (UnsafeRawPointer?, UInt64, UInt64) -> Void = {
+            contentPointer, vmAddress, vmSize in
+            guard let contentPointer else { return }
+            contentReader(contentPointer, vmAddress, vmSize)
+        }
+        return segmentName.withCString { function(image.rawValue, $0, block) }
+    }
+}
 #endif
