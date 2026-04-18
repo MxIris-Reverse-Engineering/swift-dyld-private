@@ -315,4 +315,26 @@ extension DyldProcessInfo {
         function(handle.rawValue, machHeaderAddress, block)
     }
 }
+
+// MARK: - Function 10: _dyld_process_info_get_platform
+
+extension DyldProcessInfo {
+    public typealias ProcessInfoGetPlatformFunction = @convention(c) (UnsafeRawPointer?) -> dyld_platform_t
+
+    private static let processInfoGetPlatformFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoGetPlatform,
+        as: ProcessInfoGetPlatformFunction.self
+    )
+
+    /// Returns the platform of the process represented by the given handle.
+    /// Returns 0 if the platform cannot be determined.
+    /// - Parameter handle: A valid `DyldProcessInfoHandle`.
+    /// - Returns: A `dyld_platform_t` (UInt32), or nil if the symbol could not be resolved.
+    public static func platform(of handle: DyldProcessInfoHandle) -> dyld_platform_t? {
+        guard let function = processInfoGetPlatformFunction else {
+            return nil
+        }
+        return function(handle.rawValue)
+    }
+}
 #endif

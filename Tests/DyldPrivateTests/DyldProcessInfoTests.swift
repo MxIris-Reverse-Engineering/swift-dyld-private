@@ -184,4 +184,21 @@ func processInfoForEachSegmentResolves() {
     }
     #expect(segmentCount > 0, "forEachSegment must enumerate at least one segment")
 }
+
+// MARK: - Function 10: _dyld_process_info_get_platform
+
+@Test
+func processInfoGetPlatformResolves() {
+    guard let handle = makeCurrentProcessHandle() else {
+        Issue.record("Could not create processInfo handle for platform test")
+        return
+    }
+    defer { handle.release() }
+    let platformValue = DyldProcessInfo.platform(of: handle)
+    #expect(platformValue != nil, "processInfoGetPlatform must resolve")
+    // A running process always has a determined platform (non-zero).
+    if let platformValue {
+        #expect(platformValue > 0, "Platform must be non-zero for a running process")
+    }
+}
 #endif
