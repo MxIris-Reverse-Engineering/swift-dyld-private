@@ -6,6 +6,7 @@ extension DyldPriv {
     public typealias GetBasePlatformFunction = @convention(c) (dyld_platform_t) -> dyld_platform_t
     public typealias IsSimulatorPlatformFunction = @convention(c) (dyld_platform_t) -> Bool
     public typealias SdkAtLeastFunction = @convention(c) (UnsafePointer<mach_header>?, dyld_build_version_t) -> Bool
+    public typealias MinosAtLeastFunction = @convention(c) (UnsafePointer<mach_header>?, dyld_build_version_t) -> Bool
 
     private static let getActivePlatformFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivPlatformSymbols.$getActivePlatform,
@@ -25,6 +26,11 @@ extension DyldPriv {
     private static let sdkAtLeastFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivPlatformSymbols.$sdkAtLeast,
         as: SdkAtLeastFunction.self
+    )
+
+    private static let minosAtLeastFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivPlatformSymbols.$minosAtLeast,
+        as: MinosAtLeastFunction.self
     )
 
     /// Returns the active platform identifier for the current process.
@@ -65,6 +71,19 @@ extension DyldPriv {
     ///   or `nil` if the symbol could not be resolved.
     public static func sdkAtLeast(header: UnsafePointer<mach_header>, buildVersion: dyld_build_version_t) -> Bool? {
         guard let function = sdkAtLeastFunction else { return nil }
+        return function(header, buildVersion)
+    }
+
+    /// Returns whether the minimum OS version (minos) of the given Mach-O image is
+    /// at least the version specified in `buildVersion`.
+    ///
+    /// - Parameters:
+    ///   - header: A pointer to a `mach_header` for the image to query.
+    ///   - buildVersion: The minimum platform/version pair to test against.
+    /// - Returns: `true` if the image's minos is at or above `buildVersion`, `false` if not,
+    ///   or `nil` if the symbol could not be resolved.
+    public static func minosAtLeast(header: UnsafePointer<mach_header>, buildVersion: dyld_build_version_t) -> Bool? {
+        guard let function = minosAtLeastFunction else { return nil }
         return function(header, buildVersion)
     }
 }
