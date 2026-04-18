@@ -159,4 +159,37 @@ extension DyldIntrospection {
         sharedCacheUnpinMappingFunction?(cache.rawValue)
     }
 }
+
+// MARK: - Function 17: dyld_shared_cache_for_each_file
+
+extension DyldIntrospection {
+    public typealias SharedCacheForEachFileFunction = @convention(c) (
+        OpaquePointer?,
+        @convention(block) (UnsafePointer<CChar>?) -> Void
+    ) -> Void
+
+    private static let sharedCacheForEachFileFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$sharedCacheForEachFile,
+        as: SharedCacheForEachFileFunction.self
+    )
+
+    /// Iterates over every file path that backs the given shared cache.
+    ///
+    /// - Parameters:
+    ///   - cache: A valid `DyldSharedCacheHandle`.
+    ///   - body: Called once for each backing file path with a `String`.
+    public static func forEachFile(
+        in cache: DyldSharedCacheHandle,
+        _ body: @escaping (_ filePath: String) -> Void
+    ) {
+        guard let function = sharedCacheForEachFileFunction else {
+            return
+        }
+        let block: @convention(block) (UnsafePointer<CChar>?) -> Void = { pathPointer in
+            guard let pathPointer else { return }
+            body(String(cString: pathPointer))
+        }
+        function(cache.rawValue, block)
+    }
+}
 #endif

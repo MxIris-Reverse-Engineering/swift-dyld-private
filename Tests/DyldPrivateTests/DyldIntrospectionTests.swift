@@ -296,4 +296,17 @@ func sharedCacheUnpinMappingResolves() {
     }
     #expect(unpinCalled, "unpinMapping must be callable after a successful pinMapping")
 }
+
+// MARK: - Function 17: dyld_shared_cache_for_each_file
+
+@Test
+func sharedCacheForEachFileResolves() {
+    var fileCount = 0
+    DyldIntrospection.forEachInstalledSharedCache { cacheHandle in
+        DyldIntrospection.forEachFile(in: cacheHandle) { _ in
+            fileCount += 1
+        }
+    }
+    #expect(fileCount > 0, "forEachFile must yield at least one file path for the installed shared cache")
+}
 #endif
