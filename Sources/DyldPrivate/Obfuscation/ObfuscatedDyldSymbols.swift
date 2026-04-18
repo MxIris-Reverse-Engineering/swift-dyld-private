@@ -123,6 +123,14 @@ enum ObfuscatedDyldPrivVersionWatchOSSymbols {
 }
 #endif
 
+enum ObfuscatedDyldPrivRegistrationSymbols {
+    static #Obfuscate {
+        let registerForImageLoads = "_dyld_register_for_image_loads"
+        let registerForBulkImageLoads = "_dyld_register_for_bulk_image_loads"
+        let registerDriverkitMain = "_dyld_register_driverkit_main"
+    }
+}
+
 enum ObfuscatedDyldPrivInterposeSymbols {
     static #Obfuscate {
         let dynamicInterpose = "dyld_dynamic_interpose"
