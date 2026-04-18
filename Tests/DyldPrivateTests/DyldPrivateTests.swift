@@ -13,14 +13,14 @@ private func knownSymbolProbe() -> UnsafeRawPointer? {
 
 @Test
 func sharedCacheFilePathResolves() {
-    let path = DyldRuntime.sharedCacheFilePath()
+    let path = DyldPriv.sharedCacheFilePath()
     #expect(path != nil)
     #expect(path?.isEmpty == false)
 }
 
 @Test
 func sharedCacheRangeResolves() {
-    let range = DyldRuntime.sharedCacheRange()
+    let range = DyldPriv.sharedCacheRange()
     #expect(range != nil)
     #expect(range?.size ?? 0 > 0)
 }
@@ -28,14 +28,14 @@ func sharedCacheRangeResolves() {
 @Test
 func imageHeaderContainingAddressResolves() throws {
     let probe = try #require(knownSymbolProbe())
-    let header = DyldRuntime.imageHeader(containing: probe)
+    let header = DyldPriv.imageHeader(containing: probe)
     #expect(header != nil)
 }
 
 @Test
 func imagePathContainingAddressResolves() throws {
     let probe = try #require(knownSymbolProbe())
-    let path = DyldRuntime.imagePath(containing: probe)
+    let path = DyldPriv.imagePath(containing: probe)
     #expect(path != nil)
     #expect(path?.isEmpty == false)
 }
