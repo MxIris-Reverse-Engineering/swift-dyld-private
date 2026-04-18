@@ -159,8 +159,7 @@ func processRegisterForImageNotificationsResolves() {
     switch result {
     case .success(let registrationHandle):
         #expect(registrationHandle != 0, "registerForImageNotifications must return a non-zero handle on success")
-        // unregisterForNotification will be implemented in the dyld_process_unregister_for_notification commit.
-        _ = registrationHandle
+        DyldIntrospection.unregisterForNotification(on: processHandle, registrationHandle: registrationHandle)
     case .failure(let error):
         Issue.record("registerForImageNotifications failed: \(error)")
     }
@@ -187,11 +186,36 @@ func processRegisterForEventNotificationResolves() {
     switch result {
     case .success(let registrationHandle):
         #expect(registrationHandle != 0, "registerForEventNotification must return a non-zero handle on success")
-        _ = registrationHandle
+        DyldIntrospection.unregisterForNotification(on: processHandle, registrationHandle: registrationHandle)
     case .failure:
         // If the process has already passed main(), the event notification may legitimately fail.
         // Treat failure as acceptable — we only care that the symbol resolved without crash.
         #expect(Bool(true), "registerForEventNotification returned failure (acceptable: process may be past main)")
     }
+}
+
+// MARK: - Function 11: dyld_process_unregister_for_notification
+
+@Test
+func processUnregisterForNotificationResolves() {
+    guard let processHandle = DyldIntrospection.createProcessForCurrentTask() else {
+        Issue.record("Could not create process handle for unregisterForNotification test")
+        return
+    }
+    defer { processHandle.dispose() }
+
+    let notificationQueue = DispatchQueue(label: "com.dyldprivate.test.unregister")
+    let result = DyldIntrospection.registerForImageNotifications(
+        on: processHandle,
+        queue: notificationQueue
+    ) { _, _ in }
+
+    guard case .success(let registrationHandle) = result else {
+        Issue.record("Could not register for image notifications to set up unregister test")
+        return
+    }
+    // This is the function under test — it must not crash when called with a valid handle.
+    DyldIntrospection.unregisterForNotification(on: processHandle, registrationHandle: registrationHandle)
+    #expect(Bool(true), "unregisterForNotification did not crash")
 }
 #endif

@@ -107,4 +107,31 @@ extension DyldIntrospection {
         return .success(registrationHandle)
     }
 }
+
+// MARK: - Function 11: dyld_process_unregister_for_notification
+
+extension DyldIntrospection {
+    public typealias ProcessUnregisterForNotificationFunction = @convention(c) (
+        OpaquePointer?,
+        UInt32
+    ) -> Void
+
+    private static let processUnregisterForNotificationFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$processUnregisterForNotification,
+        as: ProcessUnregisterForNotificationFunction.self
+    )
+
+    /// Unregisters a previously registered notification handler.
+    ///
+    /// - Parameters:
+    ///   - process: A valid `DyldProcessHandle`.
+    ///   - registrationHandle: The handle returned by `registerForImageNotifications` or
+    ///     `registerForEventNotification`.
+    public static func unregisterForNotification(
+        on process: DyldProcessHandle,
+        registrationHandle: UInt32
+    ) {
+        processUnregisterForNotificationFunction?(process.rawValue, registrationHandle)
+    }
+}
 #endif
