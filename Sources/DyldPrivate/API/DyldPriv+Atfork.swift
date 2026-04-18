@@ -4,6 +4,7 @@ import Darwin
 extension DyldPriv {
     public typealias AtforkPrepareFunction = @convention(c) () -> Void
     public typealias AtforkParentFunction = @convention(c) () -> Void
+    public typealias ForkChildFunction = @convention(c) () -> Void
 
     private static let atforkPrepareFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivAtforkSymbols.$atforkPrepare,
@@ -13,6 +14,11 @@ extension DyldPriv {
     private static let atforkParentFunction = DyldSymbolResolver.resolve(
         symbol: ObfuscatedDyldPrivAtforkSymbols.$atforkParent,
         as: AtforkParentFunction.self
+    )
+
+    private static let forkChildFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivAtforkSymbols.$forkChild,
+        as: ForkChildFunction.self
     )
 
     /// Calls the dyld internal atfork-prepare handler.
@@ -32,6 +38,16 @@ extension DyldPriv {
     /// See `atforkPrepare()` for safety notes.
     public static func atforkParent() {
         guard let function = atforkParentFunction else { return }
+        function()
+    }
+
+    /// Calls the dyld internal fork-child handler.
+    ///
+    /// WARNING: Must be called only from within the child process immediately after `fork()`.
+    /// This allows dyld to reinitialise its internal state in the child.
+    /// See `atforkPrepare()` for safety notes.
+    public static func forkChild() {
+        guard let function = forkChildFunction else { return }
         function()
     }
 }
