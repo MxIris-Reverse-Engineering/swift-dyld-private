@@ -14,6 +14,20 @@ enum ForbiddenSymbolList {
         "macho_for_each_defined_rpath",
         "macho_source_version",
         "macho_for_each_runnable_arch_name",
+        "_dyld_process_info_create",
+        "_dyld_process_info_release",
+        "_dyld_process_info_retain",
+        "_dyld_process_info_get_state",
+        "_dyld_process_info_get_cache",
+        "_dyld_process_info_get_aot_cache",
+        "_dyld_process_info_for_each_image",
+        "_dyld_process_info_for_each_aot_image",
+        "_dyld_process_info_for_each_segment",
+        "_dyld_process_info_get_platform",
+        "_dyld_process_info_notify",
+        "_dyld_process_info_notify_main",
+        "_dyld_process_info_notify_release",
+        "_dyld_process_info_notify_retain",
     ]
 }
 #endif

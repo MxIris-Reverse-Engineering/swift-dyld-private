@@ -22,4 +22,23 @@ enum ObfuscatedMachOUtilsSymbols {
         let machoForEachRunnableArchName = "macho_for_each_runnable_arch_name"
     }
 }
+
+enum ObfuscatedDyldProcessInfoSymbols {
+    static #Obfuscate {
+        let processInfoCreate = "_dyld_process_info_create"
+        let processInfoRelease = "_dyld_process_info_release"
+        let processInfoRetain = "_dyld_process_info_retain"
+        let processInfoGetState = "_dyld_process_info_get_state"
+        let processInfoGetCache = "_dyld_process_info_get_cache"
+        let processInfoGetAotCache = "_dyld_process_info_get_aot_cache"
+        let processInfoForEachImage = "_dyld_process_info_for_each_image"
+        let processInfoForEachAotImage = "_dyld_process_info_for_each_aot_image"
+        let processInfoForEachSegment = "_dyld_process_info_for_each_segment"
+        let processInfoGetPlatform = "_dyld_process_info_get_platform"
+        let processInfoNotify = "_dyld_process_info_notify"
+        let processInfoNotifyMain = "_dyld_process_info_notify_main"
+        let processInfoNotifyRelease = "_dyld_process_info_notify_release"
+        let processInfoNotifyRetain = "_dyld_process_info_notify_retain"
+    }
+}
 #endif
