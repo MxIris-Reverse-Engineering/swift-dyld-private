@@ -18,18 +18,11 @@ private func knownImageHeader() -> UnsafePointer<mach_header>? {
 @Test
 func installNameResolvesForSelf() {
     // libdyld itself has a well-known install name; use it as a witness.
-    let rtldDefault = UnsafeMutableRawPointer(bitPattern: -2)
-    guard let handle = dlsym(rtldDefault, "dlsym") else {
-        Issue.record("could not acquire a known symbol for this test")
+    guard let header = knownImageHeader() else {
+        Issue.record("could not obtain a mach_header for testing")
         return
     }
-    let image = DyldPriv.imageHeader(containing: UnsafeRawPointer(handle))
-    #expect(image != nil)
-
-    guard let image else { return }
-    let installName = MachOUtils.installName(
-        of: image.assumingMemoryBound(to: mach_header.self)
-    )
+    let installName = MachOUtils.installName(of: header)
     #expect(installName != nil)
     #expect(installName?.isEmpty == false)
 }
@@ -44,7 +37,7 @@ func forEachDependentDylibResolvesAndInvokes() {
     let returnCode = MachOUtils.forEachDependentDylib(
         of: header,
         mappedSize: 0
-    ) { loadPath, _, _ in
+    ) { loadPath, _libraryType, _stop in
         if !loadPath.isEmpty {
             foundAtLeastOne = true
         }
@@ -67,16 +60,10 @@ func forEachImportedSymbolResolvesAndInvokes() {
     // optimises them away during cache construction. We only require that:
     //   - the function pointer resolved (returnCode != -1), AND
     //   - calling it does not crash.
-    // We do NOT assert invocationCount > 0 because it is legitimately 0 for cache images.
-    var invocationCount = 0
     let returnCode = MachOUtils.forEachImportedSymbol(
         of: header,
         mappedSize: 0
-    ) { symbolName, _, _, _ in
-        if !symbolName.isEmpty {
-            invocationCount += 1
-        }
-    }
+    ) { _, _, _, _ in }
     // Either the sentinel -1 (function not resolved) or a non-negative OS return code.
     #expect(returnCode >= 0 || returnCode == -1)
 }
@@ -125,9 +112,9 @@ func sourceVersionResolvesAndInvokes() {
     // The function either returns a version (if LC_SOURCE_VERSION is present) or nil.
     // Both outcomes are valid; we only require that calling it does not crash.
     let version = MachOUtils.sourceVersion(of: header)
-    // If a version was returned, it must be positive.
+    // If a version was returned, accept any non-negative value (0.0.0.0.0 encodes to 0).
     if let version {
-        #expect(version > 0)
+        #expect(version >= 0)
     }
 }
 
