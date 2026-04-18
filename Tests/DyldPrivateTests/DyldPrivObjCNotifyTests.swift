@@ -13,4 +13,16 @@ func objcNotifyRegisterResolves() {
     #expect(probe != nil)
 }
 
+
+@Test
+func objcRegisterCallbacksResolves() {
+    // Resolution-only: calling _dyld_objc_register_callbacks with bogus data
+    // causes undefined behavior in the ObjC runtime.
+    let probe = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivObjCNotifySymbols.$objcRegisterCallbacks,
+        as: DyldPriv.ObjCRegisterCallbacksFunction.self
+    )
+    #expect(probe != nil)
+}
+
 #endif

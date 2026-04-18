@@ -56,6 +56,31 @@ extension DyldPriv {
         guard let function = objcNotifyRegisterFunction else { return }
         function(mapped, initialize, unmapped)
     }
+
+    // MARK: - _dyld_objc_register_callbacks (versioned struct API)
+
+    /// The function pointer type for `_dyld_objc_register_callbacks`.
+    public typealias ObjCRegisterCallbacksFunction = @convention(c) (
+        UnsafePointer<_dyld_objc_callbacks>?
+    ) -> Void
+
+    private static let objcRegisterCallbacksFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivObjCNotifySymbols.$objcRegisterCallbacks,
+        as: ObjCRegisterCallbacksFunction.self
+    )
+
+    /// Registers versioned ObjC callbacks using the `_dyld_objc_callbacks` struct.
+    ///
+    /// The callbacks struct carries a `version` field (2, 3, or 4) that determines
+    /// which additional fields are valid. Only the ObjC runtime should call this.
+    ///
+    /// - Parameter callbacks: A pointer to a versioned `_dyld_objc_callbacks` struct.
+    ///
+    /// WARNING: This is an ObjC-runtime-internal API. Available in macOS 13+, iOS 16+.
+    public static func registerObjCCallbacks(_ callbacks: UnsafePointer<_dyld_objc_callbacks>?) {
+        guard let function = objcRegisterCallbacksFunction else { return }
+        function(callbacks)
+    }
 }
 
 #endif
