@@ -203,6 +203,60 @@ extension DyldPriv {
             function(rawBuffer.baseAddress?.assumingMemoryBound(to: UInt8.self), block)
         }
     }
+
+    // MARK: - dyld_shared_cache_find_iterate_text
+
+    public typealias SharedCacheFindIterateTextFunction = @convention(c) (
+        UnsafePointer<UInt8>?,
+        UnsafePointer<UnsafePointer<CChar>?>?,
+        @convention(block) (UnsafePointer<dyld_shared_cache_dylib_text_info>?) -> Void
+    ) -> Int32
+
+    private static let sharedCacheFindIterateTextFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivSharedCacheSymbols.$sharedCacheFindIterateText,
+        as: SharedCacheFindIterateTextFunction.self
+    )
+
+    /// Locates the shared cache file with the given UUID in standard and extra directories,
+    /// then iterates over all dylibs in that cache.
+    ///
+    /// - Parameters:
+    ///   - cacheUUID: The UUID of the shared cache to find and iterate.
+    ///   - extraSearchDirectories: Additional directories to search for the cache file,
+    ///     or an empty array to search only the standard directories.
+    ///   - body: Called for each dylib in the cache with a pointer to its text info.
+    /// - Returns: 0 on success, a non-zero error code on failure, or `nil` if the symbol
+    ///   could not be resolved.
+    @discardableResult
+    public static func sharedCacheFindIterateText(
+        uuid cacheUUID: inout uuid_t,
+        extraSearchDirectories: [String] = [],
+        body: @escaping (UnsafePointer<dyld_shared_cache_dylib_text_info>) -> Void
+    ) -> Int32? {
+        guard let function = sharedCacheFindIterateTextFunction else { return nil }
+        // Build a NULL-terminated array of C strings for the extra search directories.
+        let cStringArray: [UnsafePointer<CChar>?] = extraSearchDirectories.map { directoryPath in
+            UnsafePointer(strdup(directoryPath))
+        } + [nil]
+        defer {
+            for cString in cStringArray.dropLast() {
+                cString.map { free(UnsafeMutableRawPointer(mutating: $0)) }
+            }
+        }
+        let block: @convention(block) (UnsafePointer<dyld_shared_cache_dylib_text_info>?) -> Void = { infoPointer in
+            guard let infoPointer else { return }
+            body(infoPointer)
+        }
+        return withUnsafeBytes(of: &cacheUUID) { rawBuffer in
+            cStringArray.withUnsafeBufferPointer { searchDirsBuffer in
+                function(
+                    rawBuffer.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                    searchDirsBuffer.baseAddress,
+                    block
+                )
+            }
+        }
+    }
 }
 
 #endif

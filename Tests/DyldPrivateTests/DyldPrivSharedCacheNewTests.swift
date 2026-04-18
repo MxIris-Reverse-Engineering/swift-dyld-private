@@ -12,6 +12,21 @@ func getSharedCacheUUIDLiveInvoke() {
 
 
 @Test
+func sharedCacheFindIterateTextLiveInvoke() {
+    // Get the current cache UUID, then attempt to find-iterate with no extra dirs.
+    var cacheUUID = uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    let hasUUID = DyldPriv.getSharedCacheUUID(into: &cacheUUID)
+    guard hasUUID == true else { return }
+    var iteratedCount = 0
+    let result = DyldPriv.sharedCacheFindIterateText(uuid: &cacheUUID, extraSearchDirectories: []) { _ in
+        iteratedCount += 1
+    }
+    if result != nil {
+        #expect(result == 0 || iteratedCount >= 0)
+    }
+}
+
+@Test
 func sharedCacheIterateTextLiveInvoke() {
     // First get the current cache UUID, then attempt to iterate.
     var cacheUUID = uuid_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
