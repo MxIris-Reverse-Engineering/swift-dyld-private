@@ -42,6 +42,16 @@ enum ObfuscatedDyldProcessInfoSymbols {
     }
 }
 
+enum ObfuscatedDyldPrivGlobalsSymbols {
+    static #Obfuscate {
+        let nxArgc = "NXArgc"
+        let nxArgv = "NXArgv"
+        let environ = "environ"
+        let progname = "__progname"
+        let dyldVersionString = "dyldVersionString"
+    }
+}
+
 enum ObfuscatedDyldPrivAtforkSymbols {
     static #Obfuscate {
         let atforkPrepare = "_dyld_atfork_prepare"

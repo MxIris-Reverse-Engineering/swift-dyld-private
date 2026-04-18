@@ -53,6 +53,12 @@ enum ForbiddenSymbolList {
         "dyld_shared_cache_is_mapped_private",
         "dyld_shared_cache_copy_uuid",
         "dyld_shared_cache_for_each_image",
+        // dyld_priv.h — globals
+        "NXArgc",
+        "NXArgv",
+        "environ",
+        "__progname",
+        "dyldVersionString",
         // dyld_priv.h — atfork/fork
         "_dyld_atfork_prepare",
         "_dyld_atfork_parent",
