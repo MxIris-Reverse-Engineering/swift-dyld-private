@@ -230,4 +230,55 @@ extension DyldIntrospection {
         return function(image.rawValue, block)
     }
 }
+
+// MARK: - Function 29: dyld_image_content_for_section
+
+extension DyldIntrospection {
+    public typealias ImageContentForSectionFunction = @convention(c) (
+        OpaquePointer?,
+        UnsafePointer<CChar>?,
+        UnsafePointer<CChar>?,
+        @convention(block) (UnsafeRawPointer?, UInt64, UInt64) -> Void
+    ) -> Bool
+
+    private static let imageContentForSectionFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldIntrospectionSymbols.$imageContentForSection,
+        as: ImageContentForSectionFunction.self
+    )
+
+    /// Materializes the on-disk content for a named section and passes it to the reader block.
+    ///
+    /// - Parameters:
+    ///   - image: A valid `DyldImageHandle`.
+    ///   - segmentName: The name of the segment containing the section (e.g. "__TEXT").
+    ///   - sectionName: The name of the section (e.g. "__text").
+    ///   - contentReader: Called with a pointer to the content, its VM address, and its VM size.
+    ///     The pointer is valid only for the lifetime of the block unless the cache is pinned.
+    /// - Returns: `true` if the content was materialized, `false` otherwise.
+    @discardableResult
+    public static func contentForSection(
+        in image: DyldImageHandle,
+        segmentName: String,
+        sectionName: String,
+        _ contentReader: @escaping (
+            _ content: UnsafeRawPointer,
+            _ vmAddress: UInt64,
+            _ vmSize: UInt64
+        ) -> Void
+    ) -> Bool {
+        guard let function = imageContentForSectionFunction else {
+            return false
+        }
+        let block: @convention(block) (UnsafeRawPointer?, UInt64, UInt64) -> Void = {
+            contentPointer, vmAddress, vmSize in
+            guard let contentPointer else { return }
+            contentReader(contentPointer, vmAddress, vmSize)
+        }
+        return segmentName.withCString { segmentCString in
+            sectionName.withCString { sectionCString in
+                function(image.rawValue, segmentCString, sectionCString, block)
+            }
+        }
+    }
+}
 #endif
