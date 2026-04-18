@@ -41,4 +41,44 @@ enum ObfuscatedDyldProcessInfoSymbols {
         let processInfoNotifyRetain = "_dyld_process_info_notify_retain"
     }
 }
+
+enum ObfuscatedDyldIntrospectionSymbols {
+    static #Obfuscate {
+        // Process lifecycle
+        let processCreateForCurrentTask = "dyld_process_create_for_current_task"
+        let processCreateForTask = "dyld_process_create_for_task"
+        let processDispose = "dyld_process_dispose"
+        let processSnapshotCreateForProcess = "dyld_process_snapshot_create_for_process"
+        let processSnapshotCreateFromData = "dyld_process_snapshot_create_from_data"
+        let processSnapshotDispose = "dyld_process_snapshot_dispose"
+        let processSnapshotForEachImage = "dyld_process_snapshot_for_each_image"
+        let processSnapshotGetSharedCache = "dyld_process_snapshot_get_shared_cache"
+        // Notifications
+        let processRegisterForImageNotifications = "dyld_process_register_for_image_notifications"
+        let processRegisterForEventNotification = "dyld_process_register_for_event_notification"
+        let processUnregisterForNotification = "dyld_process_unregister_for_notification"
+        // Shared cache enumeration
+        let forEachInstalledSharedCache = "dyld_for_each_installed_shared_cache"
+        let forEachInstalledSharedCacheWithSystemPath = "dyld_for_each_installed_shared_cache_with_system_path"
+        let sharedCacheForFile = "dyld_shared_cache_for_file"
+        let sharedCachePinMapping = "dyld_shared_cache_pin_mapping"
+        let sharedCacheUnpinMapping = "dyld_shared_cache_unpin_mapping"
+        let sharedCacheForEachFile = "dyld_shared_cache_for_each_file"
+        // Shared cache properties
+        let sharedCacheGetBaseAddress = "dyld_shared_cache_get_base_address"
+        let sharedCacheGetMappedSize = "dyld_shared_cache_get_mapped_size"
+        let sharedCacheIsMappedPrivate = "dyld_shared_cache_is_mapped_private"
+        let sharedCacheCopyUUID = "dyld_shared_cache_copy_uuid"
+        let sharedCacheForEachImage = "dyld_shared_cache_for_each_image"
+        // Image accessors
+        let imageCopyUUID = "dyld_image_copy_uuid"
+        let imageGetInstallname = "dyld_image_get_installname"
+        let imageGetFilePath = "dyld_image_get_file_path"
+        let imageForEachSegmentInfo = "dyld_image_for_each_segment_info"
+        let imageContentForSegment = "dyld_image_content_for_segment"
+        let imageForEachSectionInfo = "dyld_image_for_each_section_info"
+        let imageContentForSection = "dyld_image_content_for_section"
+        let imageLocalNlistContent4Symbolication = "dyld_image_local_nlist_content_4Symbolication"
+    }
+}
 #endif

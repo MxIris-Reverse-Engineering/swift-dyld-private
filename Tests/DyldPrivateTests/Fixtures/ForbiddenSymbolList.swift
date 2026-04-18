@@ -28,6 +28,40 @@ enum ForbiddenSymbolList {
         "_dyld_process_info_notify_main",
         "_dyld_process_info_notify_release",
         "_dyld_process_info_notify_retain",
+        // dyld_introspection.h — process lifecycle
+        "dyld_process_create_for_current_task",
+        "dyld_process_create_for_task",
+        "dyld_process_dispose",
+        "dyld_process_snapshot_create_for_process",
+        "dyld_process_snapshot_create_from_data",
+        "dyld_process_snapshot_dispose",
+        "dyld_process_snapshot_for_each_image",
+        "dyld_process_snapshot_get_shared_cache",
+        // dyld_introspection.h — notifications
+        "dyld_process_register_for_image_notifications",
+        "dyld_process_register_for_event_notification",
+        "dyld_process_unregister_for_notification",
+        // dyld_introspection.h — shared cache
+        "dyld_for_each_installed_shared_cache",
+        "dyld_for_each_installed_shared_cache_with_system_path",
+        "dyld_shared_cache_for_file",
+        "dyld_shared_cache_pin_mapping",
+        "dyld_shared_cache_unpin_mapping",
+        "dyld_shared_cache_for_each_file",
+        "dyld_shared_cache_get_base_address",
+        "dyld_shared_cache_get_mapped_size",
+        "dyld_shared_cache_is_mapped_private",
+        "dyld_shared_cache_copy_uuid",
+        "dyld_shared_cache_for_each_image",
+        // dyld_introspection.h — image accessors
+        "dyld_image_copy_uuid",
+        "dyld_image_get_installname",
+        "dyld_image_get_file_path",
+        "dyld_image_for_each_segment_info",
+        "dyld_image_content_for_segment",
+        "dyld_image_for_each_section_info",
+        "dyld_image_content_for_section",
+        "dyld_image_local_nlist_content_4Symbolication",
     ]
 }
 #endif
