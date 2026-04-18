@@ -61,5 +61,21 @@ extension DyldPriv {
         }
         return String(cString: doublePointer.pointee)
     }
+
+    /// Returns the dyld version string for the current dyld build.
+    ///
+    /// `dyldVersionString` is exported by dyld as a `const char*` symbol whose
+    /// address IS the first byte of the version string (i.e. `dlsym` returns a `char*`
+    /// directly, not a `char**`). This property reads the bytes at that address.
+    /// Example value: `"@(#)PROGRAM:dyld  PROJECT:dyld-1376.6"`.
+    public static var dyldVersionString: String? {
+        guard let charPointer = DyldSymbolResolver.resolveData(
+            symbol: ObfuscatedDyldPrivGlobalsSymbols.$dyldVersionString,
+            as: CChar.self
+        ) else {
+            return nil
+        }
+        return String(cString: charPointer)
+    }
 }
 #endif

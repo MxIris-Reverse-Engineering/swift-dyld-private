@@ -42,4 +42,15 @@ func prognameResolves() {
         #expect(!programName.isEmpty)
     }
 }
+
+@Test
+func dyldVersionStringResolves() {
+    // Live-invoke: dyldVersionString is exported by libdyld. It should be non-nil
+    // and non-empty on any Apple Darwin platform.
+    let versionString = DyldPriv.dyldVersionString
+    #expect(versionString != nil)
+    if let versionString {
+        #expect(!versionString.isEmpty)
+    }
+}
 #endif
