@@ -13,5 +13,22 @@ extension DyldPriv {
             as: Int32.self
         )?.pointee
     }
+
+    /// Returns the process argument vector (`argv`).
+    ///
+    /// `NXArgv` is the libc `char**` variable holding the argument array.
+    /// `dlsym` returns the address of the `char**` variable (i.e. `char***`);
+    /// this property dereferences once to expose the `char**` argv pointer.
+    /// Each element at index `i` where `0 <= i < nxArgc` is a null-terminated
+    /// C string. Element 0 is the program path.
+    public static var nxArgv: UnsafePointer<UnsafeMutablePointer<CChar>?>? {
+        guard let triplePointer = DyldSymbolResolver.resolveData(
+            symbol: ObfuscatedDyldPrivGlobalsSymbols.$nxArgv,
+            as: UnsafeMutablePointer<CChar>?.self
+        ) else {
+            return nil
+        }
+        return UnsafePointer(triplePointer)
+    }
 }
 #endif

@@ -11,4 +11,15 @@ func nxArgcResolves() {
         #expect(argumentCount >= 1)
     }
 }
+
+@Test
+func nxArgvResolves() {
+    // Live-invoke: NXArgv[0] should be a non-null pointer to the program path.
+    let argumentVector = DyldPriv.nxArgv
+    #expect(argumentVector != nil)
+    if let argumentVector {
+        // argv[0] (program name) must be non-nil for any normally launched process.
+        #expect(argumentVector[0] != nil)
+    }
+}
 #endif
