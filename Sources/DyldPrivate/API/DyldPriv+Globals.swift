@@ -46,5 +46,23 @@ extension DyldPriv {
         }
         return UnsafePointer(triplePointer)
     }
+
+    /// Returns the program name (basename of `argv[0]`).
+    ///
+    /// `__progname` is a libc `const char*` variable.
+    /// `dlsym` returns the address of the `const char*` (i.e. `const char**`);
+    /// this property dereferences once and converts to a Swift `String`.
+    public static var progname: String? {
+        guard let doublePointer = DyldSymbolResolver.resolveData(
+            symbol: ObfuscatedDyldPrivGlobalsSymbols.$progname,
+            as: UnsafePointer<CChar>.self
+        ) else {
+            return nil
+        }
+        guard let charPointer = doublePointer.pointee else {
+            return nil
+        }
+        return String(cString: charPointer)
+    }
 }
 #endif

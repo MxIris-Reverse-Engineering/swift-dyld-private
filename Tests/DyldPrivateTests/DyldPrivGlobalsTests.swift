@@ -31,4 +31,15 @@ func environResolves() {
     let environmentVector = DyldPriv.environ
     #expect(environmentVector != nil)
 }
+
+@Test
+func prognameResolves() {
+    // Live-invoke: __progname is a libc global. For any launched process it is non-nil
+    // and non-empty (it is the basename of argv[0]).
+    let programName = DyldPriv.progname
+    #expect(programName != nil)
+    if let programName {
+        #expect(!programName.isEmpty)
+    }
+}
 #endif
