@@ -10,6 +10,7 @@ public enum MachOUtils {}
 
 // MARK: - Function 1: macho_dylib_install_name
 
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
 extension MachOUtils {
     public typealias InstallNameFunction = @convention(c) (UnsafePointer<mach_header>?) -> UnsafePointer<CChar>?
 
@@ -32,6 +33,7 @@ extension MachOUtils {
 
 // MARK: - Function 2: macho_for_each_dependent_dylib
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 extension MachOUtils {
     public typealias ForEachDependentDylibFunction = @convention(c) (
         UnsafePointer<mach_header>?,
@@ -72,6 +74,7 @@ extension MachOUtils {
 
 // MARK: - Function 3: macho_for_each_imported_symbol
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 extension MachOUtils {
     public typealias ForEachImportedSymbolFunction = @convention(c) (
         UnsafePointer<mach_header>?,
@@ -112,6 +115,7 @@ extension MachOUtils {
 
 // MARK: - Function 4: macho_for_each_exported_symbol
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 extension MachOUtils {
     public typealias ForEachExportedSymbolFunction = @convention(c) (
         UnsafePointer<mach_header>?,
@@ -152,6 +156,7 @@ extension MachOUtils {
 
 // MARK: - Function 5: macho_for_each_defined_rpath
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 extension MachOUtils {
     public typealias ForEachDefinedRpathFunction = @convention(c) (
         UnsafePointer<mach_header>?,
@@ -192,6 +197,7 @@ extension MachOUtils {
 
 // MARK: - Function 6: macho_source_version
 
+@available(macOS 15.4, iOS 18.4, watchOS 11.4, tvOS 18.4, visionOS 2.4, *)
 extension MachOUtils {
     public typealias SourceVersionFunction = @convention(c) (UnsafePointer<mach_header>?, UnsafeMutablePointer<UInt64>?) -> Bool
 
@@ -218,6 +224,7 @@ extension MachOUtils {
 
 // MARK: - Function 7: macho_for_each_runnable_arch_name
 
+@available(macOS 16.0, iOS 19.0, watchOS 12.0, tvOS 19.0, visionOS 3.0, *)
 extension MachOUtils {
     public typealias ForEachRunnableArchNameFunction = @convention(c) (
         @convention(block) (UnsafePointer<CChar>?, UnsafeMutablePointer<Bool>?) -> Void

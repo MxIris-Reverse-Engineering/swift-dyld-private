@@ -112,6 +112,7 @@ extension DyldPriv {
     /// - Parameter path: The path to look up in the shared cache.
     /// - Returns: The canonical path string, `nil` if the path is not in the shared cache,
     ///   or `nil` if the symbol could not be resolved.
+    @available(macOS 11.0, iOS 14.0, *)
     public static func sharedCacheRealPath(for path: String) -> String? {
         guard let function = sharedCacheRealPathFunction else { return nil }
         return path.withCString { pathPointer in

@@ -37,6 +37,7 @@ public enum DyldIntrospection {}
 
 // MARK: - Function 1: dyld_process_create_for_current_task
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessCreateForCurrentTaskFunction = @convention(c) () -> OpaquePointer?
 
@@ -62,6 +63,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 2: dyld_process_create_for_task
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessCreateForTaskFunction = @convention(c) (
         mach_port_t,
@@ -97,6 +99,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 3: dyld_process_dispose
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessDisposeFunction = @convention(c) (OpaquePointer?) -> Void
 
@@ -109,6 +112,7 @@ extension DyldIntrospection {
 extension DyldProcessHandle {
     /// Disposes of this dyld_process_t, releasing all resources it holds.
     /// After calling this, the handle must not be used again.
+    @available(macOS 12.0, iOS 15.0, *)
     public func dispose() {
         DyldIntrospection.processDisposeFunction?(rawValue)
     }
@@ -116,6 +120,7 @@ extension DyldProcessHandle {
 
 // MARK: - Function 4: dyld_process_snapshot_create_for_process
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessSnapshotCreateForProcessFunction = @convention(c) (
         OpaquePointer?,
@@ -151,6 +156,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 5: dyld_process_snapshot_create_from_data
 
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension DyldIntrospection {
     public typealias ProcessSnapshotCreateFromDataFunction = @convention(c) (
         UnsafeMutableRawPointer?,
@@ -187,6 +193,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 6: dyld_process_snapshot_dispose
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessSnapshotDisposeFunction = @convention(c) (OpaquePointer?) -> Void
 
@@ -199,6 +206,7 @@ extension DyldIntrospection {
 extension DyldProcessSnapshotHandle {
     /// Disposes of this dyld_process_snapshot_t, freeing all resources it holds.
     /// After calling this, the handle must not be used again.
+    @available(macOS 12.0, iOS 15.0, *)
     public func dispose() {
         DyldIntrospection.processSnapshotDisposeFunction?(rawValue)
     }
@@ -206,6 +214,7 @@ extension DyldProcessSnapshotHandle {
 
 // MARK: - Function 7: dyld_process_snapshot_for_each_image
 
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension DyldIntrospection {
     public typealias ProcessSnapshotForEachImageFunction = @convention(c) (
         OpaquePointer?,
@@ -240,6 +249,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 8: dyld_process_snapshot_get_shared_cache
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessSnapshotGetSharedCacheFunction = @convention(c) (
         OpaquePointer?

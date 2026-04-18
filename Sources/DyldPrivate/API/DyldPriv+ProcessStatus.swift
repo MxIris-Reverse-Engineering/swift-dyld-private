@@ -53,6 +53,7 @@ extension DyldPriv {
     /// - Parameter radarIdentifier: A radar identifier string such as `"rdar://12345678"`.
     /// - Returns: `true` if dyld contains a fix for the specified radar, `false` if not,
     ///   or `nil` if the symbol could not be resolved.
+    @available(macOS 11.0, iOS 14.0, *)
     public static func hasFixForRadar(_ radarIdentifier: String) -> Bool? {
         guard let function = hasFixForRadarFunction else { return nil }
         return radarIdentifier.withCString { function($0) }

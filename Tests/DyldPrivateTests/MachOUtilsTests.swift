@@ -27,6 +27,7 @@ func installNameResolvesForSelf() {
     #expect(installName?.isEmpty == false)
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func forEachDependentDylibResolvesAndInvokes() {
     guard let header = knownImageHeader() else {
@@ -50,6 +51,7 @@ func forEachDependentDylibResolvesAndInvokes() {
     }
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func forEachImportedSymbolResolvesAndInvokes() {
     guard let header = knownImageHeader() else {
@@ -68,6 +70,7 @@ func forEachImportedSymbolResolvesAndInvokes() {
     #expect(returnCode >= 0 || returnCode == -1)
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func forEachExportedSymbolResolvesAndInvokes() {
     guard let header = knownImageHeader() else {
@@ -89,6 +92,7 @@ func forEachExportedSymbolResolvesAndInvokes() {
     }
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func forEachDefinedRpathResolvesAndInvokes() {
     guard let header = knownImageHeader() else {
@@ -103,6 +107,7 @@ func forEachDefinedRpathResolvesAndInvokes() {
     #expect(returnCode >= 0 || returnCode == -1)
 }
 
+@available(macOS 15.4, iOS 18.4, watchOS 11.4, tvOS 18.4, visionOS 2.4, *)
 @Test
 func sourceVersionResolvesAndInvokes() {
     guard let header = knownImageHeader() else {
@@ -118,6 +123,7 @@ func sourceVersionResolvesAndInvokes() {
     }
 }
 
+@available(macOS 16.0, iOS 19.0, watchOS 12.0, tvOS 19.0, visionOS 3.0, *)
 @Test
 func forEachRunnableArchNameResolvesAndInvokes() {
     // Function 7 takes no mach_header — it enumerates runnable arch names globally.

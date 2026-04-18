@@ -89,6 +89,7 @@ extension DyldPriv {
     /// comparison. Tokens are not stable across OS releases and must not be persisted.
     ///
     /// - Returns: An opaque `UInt64` token, or `nil` if the symbol could not be resolved.
+    @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
     public static func programSdkVersionToken() -> UInt64? {
         guard let function = getProgramSdkVersionTokenFunction else { return nil }
         return function()
@@ -97,6 +98,7 @@ extension DyldPriv {
     /// Returns an opaque token encoding the main executable's minos version.
     ///
     /// - Returns: An opaque `UInt64` token, or `nil` if the symbol could not be resolved.
+    @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
     public static func programMinosVersionToken() -> UInt64? {
         guard let function = getProgramMinosVersionTokenFunction else { return nil }
         return function()
@@ -107,6 +109,7 @@ extension DyldPriv {
     /// - Parameter token: A token obtained from `programSdkVersionToken()` or similar.
     /// - Returns: The `dyld_platform_t` value encoded in the token, or `nil` if the symbol
     ///   could not be resolved.
+    @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
     public static func platformFromVersionToken(_ token: UInt64) -> dyld_platform_t? {
         guard let function = versionTokenGetPlatformFunction else { return nil }
         return function(token)
@@ -119,6 +122,7 @@ extension DyldPriv {
     ///   - buildVersion: The platform/version pair to compare against.
     /// - Returns: `true` if the token's version is at least `buildVersion`, or `nil` if the symbol
     ///   could not be resolved.
+    @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
     public static func versionTokenAtLeast(_ token: UInt64, buildVersion: dyld_build_version_t) -> Bool? {
         guard let function = versionTokenAtLeastFunction else { return nil }
         return function(token, buildVersion)

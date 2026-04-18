@@ -77,6 +77,7 @@ extension DyldPriv {
     /// - Parameter callbacks: A pointer to a versioned `_dyld_objc_callbacks` struct.
     ///
     /// WARNING: This is an ObjC-runtime-internal API. Available in macOS 13+, iOS 16+.
+    @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
     public static func registerObjCCallbacks(_ callbacks: UnsafePointer<_dyld_objc_callbacks>?) {
         guard let function = objcRegisterCallbacksFunction else { return }
         function(callbacks)

@@ -17,6 +17,7 @@ public struct DyldSharedCacheHandle: @unchecked Sendable {
 
 // MARK: - Function 12: dyld_for_each_installed_shared_cache
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ForEachInstalledSharedCacheFunction = @convention(c) (
         @convention(block) (OpaquePointer?) -> Void
@@ -48,6 +49,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 13: dyld_for_each_installed_shared_cache_with_system_path
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ForEachInstalledSharedCacheWithSystemPathFunction = @convention(c) (
         UnsafePointer<CChar>?,
@@ -82,6 +84,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 14: dyld_shared_cache_for_file
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheForFileFunction = @convention(c) (
         UnsafePointer<CChar>?,
@@ -118,6 +121,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 15: dyld_shared_cache_pin_mapping
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCachePinMappingFunction = @convention(c) (OpaquePointer?) -> Bool
 
@@ -143,6 +147,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 16: dyld_shared_cache_unpin_mapping
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheUnpinMappingFunction = @convention(c) (OpaquePointer?) -> Void
 
@@ -162,6 +167,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 17: dyld_shared_cache_for_each_file
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheForEachFileFunction = @convention(c) (
         OpaquePointer?,
@@ -195,6 +201,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 18: dyld_shared_cache_get_base_address
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheGetBaseAddressFunction = @convention(c) (OpaquePointer?) -> UInt64
 
@@ -217,6 +224,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 19: dyld_shared_cache_get_mapped_size
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheGetMappedSizeFunction = @convention(c) (OpaquePointer?) -> UInt64
 
@@ -239,6 +247,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 20: dyld_shared_cache_is_mapped_private
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheIsMappedPrivateFunction = @convention(c) (OpaquePointer?) -> Bool
 
@@ -262,6 +271,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 21: dyld_shared_cache_copy_uuid
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     // uuid_t is a Swift tuple, which is not Objective-C representable and cannot appear directly
     // in @convention(c) function pointer types. The C function takes a uuid_t* which is a pointer
@@ -296,6 +306,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 22: dyld_shared_cache_for_each_image
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias SharedCacheForEachImageFunction = @convention(c) (
         OpaquePointer?,

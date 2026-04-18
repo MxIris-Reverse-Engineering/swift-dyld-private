@@ -139,6 +139,7 @@ extension DyldPriv {
     ///
     /// - Returns: A pointer to the process image header, or `nil` if the symbol could not
     ///   be resolved.
+    @available(macOS 11.0, *)
     public static func programImageHeader() -> UnsafePointer<mach_header>? {
         guard let function = getProgImageHeaderFunction else { return nil }
         return function()
@@ -149,6 +150,7 @@ extension DyldPriv {
     /// - Parameter handle: The opaque handle returned by `dlopen`.
     /// - Returns: A pointer to the image's Mach-O header, or `nil` if the symbol could not
     ///   be resolved or the handle is invalid.
+    @available(macOS 13.0, *)
     public static func dlopenImageHeader(handle: UnsafeMutableRawPointer) -> UnsafePointer<mach_header>? {
         guard let function = getDlopenImageHeaderFunction else { return nil }
         return function(handle)

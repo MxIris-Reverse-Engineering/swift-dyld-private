@@ -14,6 +14,7 @@ extension DyldPriv {
     /// The value is a bitmask of internal dyld launch mode flags (e.g. prewarmed,
     /// closure-used, interposition-disabled). Both zero and non-zero values are valid;
     /// accept any `UInt32` returned by the runtime.
+    @available(macOS 11.0, iOS 14.0, *)
     public static func launchMode() -> UInt32? {
         guard let function = launchModeFunction else { return nil }
         return function()

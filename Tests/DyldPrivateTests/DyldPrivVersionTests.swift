@@ -45,6 +45,7 @@ func programMinosAtLeastResolves() {
     }
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func programSdkVersionTokenResolves() {
     // This SPI is available from macOS 15 / iOS 18. On older OS it may return nil; that's acceptable.
@@ -55,6 +56,7 @@ func programSdkVersionTokenResolves() {
     }
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func programMinosVersionTokenResolves() {
     let tokenValue = DyldPriv.programMinosVersionToken()
@@ -63,6 +65,7 @@ func programMinosVersionTokenResolves() {
     }
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func platformFromVersionTokenResolves() {
     guard let sdkToken = DyldPriv.programSdkVersionToken() else {
@@ -76,6 +79,7 @@ func platformFromVersionTokenResolves() {
     }
 }
 
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, *)
 @Test
 func versionTokenAtLeastResolves() {
     guard let activePlatform = DyldPriv.getActivePlatform(),

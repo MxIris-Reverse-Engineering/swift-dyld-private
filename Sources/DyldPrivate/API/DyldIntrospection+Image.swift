@@ -17,6 +17,7 @@ public struct DyldImageHandle: @unchecked Sendable {
 
 // MARK: - Function 23: dyld_image_copy_uuid
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     // uuid_t is a Swift tuple, which is not Objective-C representable and cannot appear directly
     // in @convention(c) function pointer types. The C function takes a uuid_t* which is a pointer
@@ -51,6 +52,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 24: dyld_image_get_installname
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ImageGetInstallnameFunction = @convention(c) (OpaquePointer?) -> UnsafePointer<CChar>?
 
@@ -77,6 +79,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 25: dyld_image_get_file_path
 
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension DyldIntrospection {
     public typealias ImageGetFilePathFunction = @convention(c) (OpaquePointer?) -> UnsafePointer<CChar>?
 
@@ -103,6 +106,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 26: dyld_image_for_each_segment_info
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ImageForEachSegmentInfoFunction = @convention(c) (
         OpaquePointer?,
@@ -145,6 +149,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 27: dyld_image_content_for_segment
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ImageContentForSegmentFunction = @convention(c) (
         OpaquePointer?,
@@ -189,6 +194,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 28: dyld_image_for_each_section_info
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ImageForEachSectionInfoFunction = @convention(c) (
         OpaquePointer?,
@@ -233,6 +239,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 29: dyld_image_content_for_section
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ImageContentForSectionFunction = @convention(c) (
         OpaquePointer?,
@@ -284,6 +291,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 30: dyld_image_local_nlist_content_4Symbolication
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ImageLocalNlistContent4SymbolicationFunction = @convention(c) (
         OpaquePointer?,

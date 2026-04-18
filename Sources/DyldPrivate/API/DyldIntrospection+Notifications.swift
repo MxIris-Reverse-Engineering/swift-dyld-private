@@ -4,6 +4,7 @@ import Dispatch
 
 // MARK: - Function 9: dyld_process_register_for_image_notifications
 
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension DyldIntrospection {
     // dispatch_queue_t is bridged to DispatchQueue in Swift. For @convention(c), it cannot appear
     // directly, so we pass it through OpaquePointer and reconstruct via Unmanaged.
@@ -61,6 +62,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 10: dyld_process_register_for_event_notification
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessRegisterForEventNotificationFunction = @convention(c) (
         OpaquePointer?,                                          // dyld_process_t
@@ -118,6 +120,7 @@ extension DyldIntrospection {
 
 // MARK: - Function 11: dyld_process_unregister_for_notification
 
+@available(macOS 12.0, iOS 15.0, *)
 extension DyldIntrospection {
     public typealias ProcessUnregisterForNotificationFunction = @convention(c) (
         OpaquePointer?,
