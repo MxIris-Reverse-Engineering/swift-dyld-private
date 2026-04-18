@@ -442,4 +442,23 @@ extension DyldProcessInfo {
         function(handle.rawValue, notifyMainBlock)
     }
 }
+
+// MARK: - Function 13: _dyld_process_info_notify_release
+
+extension DyldProcessInfo {
+    public typealias ProcessInfoNotifyReleaseFunction = @convention(c) (UnsafeRawPointer?) -> Void
+
+    fileprivate static let processInfoNotifyReleaseFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoNotifyRelease,
+        as: ProcessInfoNotifyReleaseFunction.self
+    )
+}
+
+extension DyldProcessInfoNotifyHandle {
+    /// Stops notifications and invalidates this dyld_process_info_notify handle.
+    /// After calling this, the handle must not be used again.
+    public func release() {
+        DyldProcessInfo.processInfoNotifyReleaseFunction?(rawValue)
+    }
+}
 #endif
