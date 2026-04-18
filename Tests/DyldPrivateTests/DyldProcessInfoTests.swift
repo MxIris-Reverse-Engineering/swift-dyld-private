@@ -240,4 +240,16 @@ func processInfoNotifyReleaseFunctionResolves() {
     )
     #expect(resolvedFunction != nil, "The _dyld_process_info_notify_release symbol must be resolvable via obfuscated lookup")
 }
+
+// MARK: - Function 14: _dyld_process_info_notify_retain (resolution check only)
+
+@Test
+func processInfoNotifyRetainFunctionResolves() {
+    typealias NotifyRetainProbe = @convention(c) () -> Void
+    let resolvedFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldProcessInfoSymbols.$processInfoNotifyRetain,
+        as: NotifyRetainProbe.self
+    )
+    #expect(resolvedFunction != nil, "The _dyld_process_info_notify_retain symbol must be resolvable via obfuscated lookup")
+}
 #endif
