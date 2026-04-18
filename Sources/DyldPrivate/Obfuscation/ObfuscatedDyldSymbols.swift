@@ -42,6 +42,16 @@ enum ObfuscatedDyldProcessInfoSymbols {
     }
 }
 
+enum ObfuscatedDyldPrivPlatformSymbols {
+    static #Obfuscate {
+        let getActivePlatform = "dyld_get_active_platform"
+        let getBasePlatform = "dyld_get_base_platform"
+        let isSimulatorPlatform = "dyld_is_simulator_platform"
+        let sdkAtLeast = "dyld_sdk_at_least"
+        let minosAtLeast = "dyld_minos_at_least"
+    }
+}
+
 enum ObfuscatedDyldPrivProcessStatusSymbols {
     static #Obfuscate {
         let sharedCacheSomeImageOverridden = "dyld_shared_cache_some_image_overridden"
