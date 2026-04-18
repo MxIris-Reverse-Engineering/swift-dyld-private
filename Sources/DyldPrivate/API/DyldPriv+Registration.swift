@@ -54,6 +54,32 @@ extension DyldPriv {
         guard let function = registerForBulkImageLoadsFunction else { return }
         function(callback)
     }
+
+    public typealias RegisterDriverkitMainFunction = @convention(c) (
+        (@convention(c) () -> Void)?
+    ) -> Void
+
+    private static let registerDriverkitMainFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivRegistrationSymbols.$registerDriverkitMain,
+        as: RegisterDriverkitMainFunction.self
+    )
+
+    /// Registers the DriverKit main entry point function.
+    ///
+    /// DriverKit main executables do not have an LC_MAIN load command. Instead,
+    /// DriverKit.framework's initializer calls this function with a pointer that dyld
+    /// should invoke instead of using LC_MAIN.
+    ///
+    /// - Parameter mainCallback: The C function pointer to use as the DriverKit entry point.
+    ///
+    /// WARNING: This function is specific to DriverKit executables. Calling it from a
+    /// non-DriverKit context is unsupported and may cause undefined behavior.
+    public static func registerDriverkitMain(
+        _ mainCallback: @convention(c) () -> Void
+    ) {
+        guard let function = registerDriverkitMainFunction else { return }
+        function(mainCallback)
+    }
 }
 
 #endif
