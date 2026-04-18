@@ -384,4 +384,29 @@ func sharedCacheForEachImageResolves() {
     }
     #expect(imageCount > 0, "forEachImage in shared cache must yield at least one image")
 }
+
+// MARK: - Function 23: dyld_image_copy_uuid
+
+@Test
+func imageCopyUUIDResolves() {
+    guard let processHandle = DyldIntrospection.createProcessForCurrentTask() else {
+        Issue.record("Could not create process handle for imageCopyUUID test")
+        return
+    }
+    defer { processHandle.dispose() }
+    guard case .success(let snapshotHandle) = DyldIntrospection.createSnapshot(forProcess: processHandle) else {
+        Issue.record("Could not create snapshot handle for imageCopyUUID test")
+        return
+    }
+    defer { snapshotHandle.dispose() }
+
+    var successCount = 0
+    DyldIntrospection.forEachImage(in: snapshotHandle) { imageHandle in
+        guard successCount == 0 else { return }
+        if let _ = DyldIntrospection.copyUUID(of: imageHandle) {
+            successCount += 1
+        }
+    }
+    #expect(successCount > 0, "imageCopyUUID must successfully return a UUID for at least one image")
+}
 #endif
