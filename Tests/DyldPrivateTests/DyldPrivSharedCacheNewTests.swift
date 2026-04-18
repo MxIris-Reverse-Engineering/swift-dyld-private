@@ -12,6 +12,20 @@ func getSharedCacheUUIDLiveInvoke() {
 
 
 @Test
+func isMemoryImmutableLiveInvoke() {
+    // Test with a stack address (definitely not immutable dyld memory).
+    var localValue: Int = 42
+    let result = withUnsafePointer(to: &localValue) { stackPointer -> Bool? in
+        DyldPriv.isMemoryImmutable(
+            pointer: UnsafeRawPointer(stackPointer),
+            size: MemoryLayout<Int>.size
+        )
+    }
+    // Accept either result; just must not crash.
+    _ = result
+}
+
+@Test
 func needsClosureLiveInvoke() {
     // Pass harmless args; accept either bool result.
     let result = DyldPriv.needsClosure(executablePath: "/usr/bin/true", dataContainerRootDir: "/tmp")

@@ -147,6 +147,28 @@ extension DyldPriv {
             }
         }
     }
+
+    // MARK: - _dyld_is_memory_immutable
+
+    public typealias IsMemoryImmutableFunction = @convention(c) (UnsafeRawPointer?, Int) -> Bool
+
+    private static let isMemoryImmutableFunction = DyldSymbolResolver.resolve(
+        symbol: ObfuscatedDyldPrivSharedCacheSymbols.$isMemoryImmutable,
+        as: IsMemoryImmutableFunction.self
+    )
+
+    /// Returns whether the specified address range is in dyld-owned memory that is
+    /// mapped read-only and will never be unloaded.
+    ///
+    /// - Parameters:
+    ///   - pointer: The starting address of the memory range to check.
+    ///   - size: The length (in bytes) of the range to check.
+    /// - Returns: `true` if the range is immutable dyld memory, `false` otherwise,
+    ///   or `nil` if the symbol could not be resolved.
+    public static func isMemoryImmutable(pointer: UnsafeRawPointer, size: Int) -> Bool? {
+        guard let function = isMemoryImmutableFunction else { return nil }
+        return function(pointer, size)
+    }
 }
 
 #endif
