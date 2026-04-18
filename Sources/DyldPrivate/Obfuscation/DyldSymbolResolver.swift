@@ -33,6 +33,29 @@ enum DyldSymbolResolver {
         return unsafeBitCast(pointer, to: FunctionType.self)
     }
 
+    /// Resolves a data symbol (global variable) by name and returns a typed pointer to its storage.
+    /// Unlike `resolve(symbol:as:)` which bitcasts the dlsym result to a function type,
+    /// this helper binds the raw pointer returned by dlsym directly to `T` — appropriate
+    /// when the symbol IS the variable (e.g. `NXArgc`, `dyldVersionString`).
+    /// Resolves a data symbol (global variable) by name and returns a typed pointer to its storage.
+    /// Unlike `resolve(symbol:as:)` which bitcasts the dlsym result to a function type,
+    /// this helper binds the raw pointer returned by dlsym directly to `T` — appropriate
+    /// when the symbol IS the variable (e.g. `NXArgc`, `dyldVersionString`).
+    static func resolveData<DataType>(
+        symbol name: String,
+        as type: DataType.Type
+    ) -> UnsafePointer<DataType>? {
+        if let rawPointer = lookup(symbol: name, handle: defaultHandle.rawValue) {
+            return UnsafePointer(rawPointer.assumingMemoryBound(to: DataType.self))
+        }
+        guard let fallbackHandle = FallbackHandleHolder.handle.rawValue,
+              let rawPointer = lookup(symbol: name, handle: fallbackHandle)
+        else {
+            return nil
+        }
+        return UnsafePointer(rawPointer.assumingMemoryBound(to: DataType.self))
+    }
+
     private static func lookup(
         symbol name: String,
         handle: UnsafeMutableRawPointer?
