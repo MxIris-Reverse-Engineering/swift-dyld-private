@@ -6,9 +6,9 @@ let package = Package(
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
-        .macCatalyst(.v15),
-        .watchOS(.v8),
-        .tvOS(.v15),
+        .macCatalyst(.v13),
+        .watchOS(.v6),
+        .tvOS(.v13),
         .visionOS(.v1),
     ],
     products: [
@@ -22,7 +22,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/securevale/swift-confidential.git", .upToNextMinor(from: "0.5.0")),
+        .package(url: "https://github.com/MxIris-Library-Forks/swift-confidential.git", .upToNextMinor(from: "0.5.0")),
     ],
     targets: [
         .target(
